@@ -1,0 +1,3437 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#080b12">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <meta name="apple-mobile-web-app-title" content="توفاكسس">
+    <link rel="apple-touch-icon" href="apple-touch-icon.png">
+    <link rel="icon" href="icon-192.png">
+    <title>توفاكسس | 2FAKSS - موسوعة أفلام العالم</title>
+    <!-- خطوط عربية عصرية -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet">
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        cairo: ['Cairo', 'sans-serif'],
+                        tajawal: ['Tajawal', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body {
+            background-color: #080b12;
+            color: #f8fafc;
+            font-family: 'Cairo', sans-serif;
+            overflow-x: hidden;
+        }
+
+        /* شريط التمرير */
+        ::-webkit-scrollbar {
+            width: 7px;
+            height: 7px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #080b12;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #1e293b;
+            border-radius: 9999px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #f59e0b;
+        }
+
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+
+        /* تأثيرات بطاقات الأفلام */
+        .movie-card {
+            transition: transform 0.3s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.3s ease, border-color 0.3s ease;
+        }
+        .movie-card:hover {
+            transform: translateY(-6px);
+            box-shadow: 0 20px 35px -12px rgba(245, 158, 11, 0.22);
+            border-color: rgba(245, 158, 11, 0.45);
+        }
+
+        /* شريط تقدم التحميل المتحرك */
+        @keyframes stripeMove {
+            0% { background-position: 1rem 0; }
+            100% { background-position: 0 0; }
+        }
+        .progress-striped {
+            background-image: linear-gradient(
+                45deg,
+                rgba(255, 255, 255, 0.2) 25%,
+                transparent 25%,
+                transparent 50%,
+                rgba(255, 255, 255, 0.2) 50%,
+                rgba(255, 255, 255, 0.2) 75%,
+                transparent 75%,
+                transparent
+            );
+            background-size: 1rem 1rem;
+            animation: stripeMove 0.8s linear infinite;
+        }
+
+        /* حركة موجة السينما في المشغل */
+        @keyframes cinemaPulse {
+            0%, 100% { transform: scale(1); opacity: 0.35; }
+            50% { transform: scale(1.08); opacity: 0.55; }
+        }
+        .cinema-ambient {
+            animation: cinemaPulse 6s ease-in-out infinite;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col selection:bg-amber-500 selection:text-slate-950">
+
+    <!-- ===================================================================== -->
+    <!-- 1. الهيدر وشريط التنقل (Header & Navigation)                           -->
+    <!-- ===================================================================== -->
+    <header class="sticky top-0 z-40 bg-[#080b12]/90 backdrop-blur-xl border-b border-slate-800/80">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
+            <div class="flex flex-wrap items-center justify-between gap-3">
+                
+                <!-- شعار العلامة التجارية العصري: توفاكسس | 2FAKSS -->
+                <div onclick="switchTab('home'); resetFilters();" class="flex items-center gap-3.5 cursor-pointer group shrink-0">
+                    <div class="relative w-12 h-12 rounded-2xl bg-gradient-to-br from-amber-400 via-orange-500 to-rose-600 p-[2px] shadow-lg shadow-amber-500/25 group-hover:scale-105 transition-transform">
+                        <div class="w-full h-full bg-[#0b101b] rounded-[14px] flex flex-col items-center justify-center relative overflow-hidden">
+                            <div class="absolute inset-0 bg-gradient-to-tr from-amber-500/20 to-rose-500/20"></div>
+                            <span class="relative z-10 font-sans font-black text-base leading-none tracking-tighter bg-gradient-to-r from-amber-300 via-amber-400 to-rose-400 bg-clip-text text-transparent">
+                                2F
+                            </span>
+                            <div class="relative z-10 flex items-center gap-0.5 mt-1">
+                                <span class="w-1 h-1 rounded-full bg-amber-400"></span>
+                                <span class="w-3 h-0.5 rounded-full bg-gradient-to-r from-amber-400 to-rose-500"></span>
+                                <span class="w-1 h-1 rounded-full bg-rose-500"></span>
+                            </div>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="flex items-center gap-2">
+                            <h1 class="text-xl sm:text-2xl font-black tracking-tight bg-gradient-to-l from-amber-300 via-amber-400 to-white bg-clip-text text-transparent">
+                                توفاكسس
+                            </h1>
+                            <span class="px-2 py-0.5 rounded-lg bg-gradient-to-r from-amber-500/20 to-rose-500/20 border border-amber-500/40 font-sans font-black text-[11px] sm:text-xs tracking-widest text-amber-300 shadow-sm">
+                                2FAKSS
+                            </span>
+                        </div>
+                        <p class="text-[11px] text-slate-400 font-tajawal -mt-0.5">منصة السينما العالمية والتحميل المباشر</p>
+                    </div>
+                </div>
+
+                <!-- شريط البحث الفوري -->
+                <div class="order-3 lg:order-2 w-full lg:w-[390px] xl:w-[450px] relative">
+                    <input 
+                        type="text" 
+                        id="searchInput"
+                        placeholder="ابحث في توفاكسس (عربي/إنجليزي)، الممثل، أو المخرج..." 
+                        class="w-full bg-slate-900/90 border border-slate-700/80 text-sm text-white placeholder-slate-400 rounded-xl py-2.5 pr-10 pl-9 focus:outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500 transition-all"
+                    >
+                    <i class="fa-solid fa-magnifying-glass absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-sm"></i>
+                    <button id="clearSearchBtn" onclick="clearSearch()" class="hidden absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white p-1">
+                        <i class="fa-solid fa-xmark"></i>
+                    </button>
+                </div>
+
+                <!-- تبويبات التنقل الرئيسية -->
+                <nav class="order-2 lg:order-3 flex items-center gap-1.5 sm:gap-2 bg-slate-900/90 p-1.5 rounded-2xl border border-slate-800">
+                    <button id="tab-home" onclick="switchTab('home')" class="nav-tab active flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all bg-amber-500 text-slate-950 shadow-md">
+                        <i class="fa-solid fa-house"></i>
+                        <span>الرئيسية</span>
+                    </button>
+
+                    <button id="tab-favorites" onclick="switchTab('favorites')" class="nav-tab flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all text-slate-300 hover:text-white hover:bg-slate-800">
+                        <i class="fa-solid fa-heart text-rose-500"></i>
+                        <span>المفضلة</span>
+                        <span id="favBadge" class="bg-rose-500/20 text-rose-400 border border-rose-500/30 text-[11px] font-extrabold px-1.5 py-0.2 rounded-full">0</span>
+                    </button>
+
+                    <button id="tab-downloads" onclick="switchTab('downloads')" class="nav-tab flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all text-slate-300 hover:text-white hover:bg-slate-800">
+                        <i class="fa-solid fa-cloud-arrow-down text-amber-400"></i>
+                        <span>التحميلات</span>
+                        <span id="downloadsBadge" class="bg-amber-500/20 text-amber-400 border border-amber-500/30 text-[11px] font-extrabold px-1.5 py-0.2 rounded-full">0</span>
+                    </button>
+                </nav>
+
+            </div>
+        </div>
+    </header>
+
+    <!-- ===================================================================== -->
+    <!-- 2. قسم الرئيسية والمفضلة (Home & Favorites View)                      -->
+    <!-- ===================================================================== -->
+    <main id="mainCatalogView" class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6">
+
+        <!-- شريط الترحيب بمنصة توفاكسس 2FAKSS -->
+        <div id="welcomeRibbon" class="mb-5 bg-gradient-to-l from-[#111827] via-[#131b2e] to-[#0f172a] border border-amber-500/25 rounded-2xl px-4 sm:px-6 py-3.5 flex flex-wrap items-center justify-between gap-3 shadow-lg">
+            <div class="flex items-center gap-3">
+                <span class="w-8 h-8 rounded-xl bg-amber-500/15 border border-amber-500/30 text-amber-400 flex items-center justify-center shrink-0">
+                    <i class="fa-solid fa-sparkles"></i>
+                </span>
+                <p class="text-xs sm:text-sm font-bold text-slate-200">
+                    مرحباً بك في <span class="text-amber-400 font-black">توفاكسس (2FAKSS)</span> — كتالوج محدث بأفلام عالمية وعربية وآسيوية وأوروبية وهندية ووثائقية (2024–2026) مع محاكاة للتحميل والمشاهدة أوفلاين.
+                </p>
+            </div>
+            <span class="text-[11px] font-sans font-extrabold tracking-wider text-amber-400/90 bg-amber-500/10 px-3 py-1 rounded-full border border-amber-500/20">
+                2FAKSS CATALOG 2024–2026
+            </span>
+        </div>
+
+        <!-- البانر الرئيسي للفيلم المميز (Hero Banner) -->
+        <section id="heroBanner" class="relative rounded-3xl overflow-hidden mb-8 border border-slate-800/90 shadow-2xl">
+            <!-- يتم حقن محتوى البانر ديناميكياً -->
+        </section>
+
+        <!-- لوحة التصفية متعددة المعايير -->
+        <section class="bg-[#101625] border border-slate-800/90 rounded-2xl p-4 sm:p-5 mb-8 shadow-xl space-y-4">
+            
+            <!-- البلد / الفئة العالمية -->
+            <div>
+                <div class="flex items-center gap-2 text-xs font-bold text-slate-400 mb-2">
+                    <i class="fa-solid fa-globe text-amber-500"></i>
+                    <span>البلد / الفئة العالمية:</span>
+                </div>
+                <div id="categoryFilterBar" class="flex items-center gap-2 overflow-x-auto no-scrollbar pb-1"></div>
+            </div>
+
+            <!-- النوع -->
+            <div class="pt-3 border-t border-slate-800/80">
+                <div class="flex items-center gap-2 text-xs font-bold text-slate-400 mb-2">
+                    <i class="fa-solid fa-masks-theater text-rose-500"></i>
+                    <span>النوع:</span>
+                </div>
+                <div id="genreFilterBar" class="flex items-center gap-2 overflow-x-auto no-scrollbar pb-1"></div>
+            </div>
+
+            <!-- سنة الإصدار + الترتيب + مسح الفلاتر -->
+            <div class="pt-3 border-t border-slate-800/80 flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+                <div class="flex-1 overflow-hidden">
+                    <div class="flex items-center gap-2 text-xs font-bold text-slate-400 mb-2">
+                        <i class="fa-solid fa-calendar-days text-emerald-400"></i>
+                        <span>سنة الإصدار:</span>
+                    </div>
+                    <div id="yearFilterBar" class="flex items-center gap-2 overflow-x-auto no-scrollbar pb-1"></div>
+                </div>
+
+                <div class="flex flex-wrap items-center gap-2.5 shrink-0">
+                    <select id="statusSelect" aria-label="حالة العرض" onchange="setFilter('status', this.value)" class="bg-slate-900 border border-slate-700/80 rounded-xl px-3 py-2 text-xs sm:text-sm font-bold text-white">
+                        <option value="all">كل الأفلام</option>
+                        <option value="released">صدرت</option>
+                        <option value="upcoming">قريباً</option>
+                    </select>
+                    <div class="flex items-center gap-2 bg-slate-900 border border-slate-700/80 rounded-xl px-3 py-2">
+                        <span class="text-xs text-slate-400">ترتيب حسب:</span>
+                        <select id="sortSelect" onchange="renderCatalog()" class="bg-transparent text-xs sm:text-sm font-bold text-white focus:outline-none cursor-pointer">
+                            <option value="newest" class="bg-slate-900">الأحدث إصداراً</option>
+                            <option value="popular" class="bg-slate-900">الأكثر شعبية</option>
+                            <option value="rating" class="bg-slate-900">الأعلى تقييماً</option>
+                            <option value="title" class="bg-slate-900">أبجدياً</option>
+                        </select>
+                    </div>
+
+                    <button onclick="resetFilters()" class="px-3.5 py-2 rounded-xl bg-slate-800 hover:bg-rose-600/20 hover:text-rose-400 hover:border-rose-500/40 border border-slate-700 text-slate-300 text-xs sm:text-sm font-bold transition-all flex items-center gap-1.5">
+                        <i class="fa-solid fa-filter-circle-xmark"></i>
+                        <span>مسح الفلاتر</span>
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- شريط عنوان النتائج وعدادها -->
+        <div class="flex flex-wrap items-center justify-between gap-3 mb-6">
+            <div class="flex items-center gap-2.5">
+                <span class="w-1.5 h-7 rounded-full bg-gradient-to-b from-amber-400 to-rose-500"></span>
+                <h2 id="sectionTitle" class="text-xl sm:text-2xl font-black text-white">مكتبة توفاكسس (2024–2026)</h2>
+                <span id="activeResultCount" class="bg-amber-500/15 border border-amber-500/30 text-amber-400 text-xs font-extrabold px-3 py-1 rounded-full"></span>
+            </div>
+        </div>
+
+        <!-- شبكة عرض الأفلام -->
+        <div id="moviesGrid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+            <!-- يتم حقن بطاقات الأفلام ديناميكياً -->
+        </div>
+
+        <!-- حالة عدم وجود نتائج -->
+        <div id="emptyCatalogState" class="hidden text-center py-16 px-4 bg-[#101625] rounded-3xl border border-slate-800">
+            <div class="w-20 h-20 rounded-full bg-slate-800/80 text-amber-500 flex items-center justify-center mx-auto mb-4 text-3xl">
+                <i class="fa-solid fa-film"></i>
+            </div>
+            <h3 class="text-xl font-extrabold text-white mb-2">لا توجد أفلام تطابق بحثك في توفاكسس</h3>
+            <p class="text-slate-400 text-sm max-w-md mx-auto mb-6 font-tajawal">جرّب تغيير الفئة أو النوع أو سنة الإصدار، أو قم بمسح الفلاتر لعرض جميع الأفلام المتوفرة في مكتبة توفاكسس (2FAKSS).</p>
+            <button onclick="resetFilters()" class="px-6 py-3 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-extrabold text-sm transition-all shadow-lg shadow-amber-500/20">
+                إعادة عرض جميع الأفلام
+            </button>
+        </div>
+
+    </main>
+
+    <!-- ===================================================================== -->
+    <!-- 3. تبويب مدير التحميلات المدمج (In-App Download Manager Tab)           -->
+    <!-- ===================================================================== -->
+    <section id="downloadsTabView" class="hidden flex-1 max-w-6xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        
+        <!-- رأس مدير التحميلات ومؤشر التخزين -->
+        <div class="bg-[#101625] border border-slate-800 rounded-3xl p-6 mb-8 shadow-xl flex flex-col md:flex-row md:items-center justify-between gap-6">
+            <div>
+                <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-500/15 text-amber-400 text-xs font-bold mb-2">
+                    <i class="fa-solid fa-hard-drive"></i>
+                    <span>التخزين الداخلي لتطبيق توفاكسس • 2FAKSS</span>
+                </div>
+                <h2 class="text-2xl sm:text-3xl font-black text-white">مدير التحميلات والمشاهدة بدون إنترنت</h2>
+                <p class="text-slate-400 text-sm font-tajawal mt-1">تابع تقدم تحميلاتك الحالية أو شغّل الأفلام المحفوظة في توفاكسس مباشرة بجودة عالية.</p>
+            </div>
+
+            <!-- مؤشر مساحة التخزين -->
+            <div class="bg-slate-950/80 border border-slate-800 rounded-2xl p-4 w-full md:w-80 shrink-0">
+                <div class="flex items-center justify-between text-xs font-bold mb-2">
+                    <span class="text-slate-300">المساحة المستخدمة</span>
+                    <span id="storageStatsText" class="text-amber-400">0 GB / 64 GB</span>
+                </div>
+                <div class="w-full bg-slate-800 h-2.5 rounded-full overflow-hidden mb-2">
+                    <div id="storageProgressBar" class="bg-gradient-to-l from-amber-400 to-rose-500 h-full rounded-full transition-all duration-500" style="width: 2%"></div>
+                </div>
+                <div class="flex items-center justify-between text-[11px] text-slate-400">
+                    <span id="offlineMoviesCountText">0 أفلام محفوظة</span>
+                    <span>متاح للمشاهدة أوفلاين</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- التحميلات النشطة (Active Downloads) -->
+        <div class="mb-10">
+            <h3 class="text-lg font-extrabold text-white mb-4 flex items-center gap-2">
+                <i class="fa-solid fa-circle-arrow-down text-amber-400"></i>
+                <span>التحميلات النشطة</span>
+                <span id="activeDownloadsCounter" class="bg-slate-800 text-amber-400 text-xs px-2.5 py-0.5 rounded-full">0</span>
+            </h3>
+            <div id="activeDownloadsContainer" class="space-y-4">
+                <!-- يتم حقن التحميلات الجارية هنا -->
+            </div>
+        </div>
+
+        <!-- التحميلات المكتملة (Completed Offline Movies) -->
+        <div>
+            <h3 class="text-lg font-extrabold text-white mb-4 flex items-center gap-2">
+                <i class="fa-solid fa-circle-check text-emerald-400"></i>
+                <span>الأفلام المحمّلة في توفاكسس (جاهزة للمشاهدة أوفلاين)</span>
+                <span id="completedDownloadsCounter" class="bg-slate-800 text-emerald-400 text-xs px-2.5 py-0.5 rounded-full">0</span>
+            </h3>
+            <div id="completedDownloadsContainer" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <!-- يتم حقن الأفلام المكتملة هنا -->
+            </div>
+        </div>
+
+    </section>
+
+    <!-- ===================================================================== -->
+    <!-- 4. تذييل الصفحة الرسمي (Footer)                                       -->
+    <!-- ===================================================================== -->
+    <footer class="mt-12 bg-[#060910] border-t border-slate-800/80">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+            <div class="flex flex-col md:flex-row items-center justify-between gap-6">
+                
+                <!-- شعار التذييل -->
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-500 to-rose-600 flex items-center justify-center font-sans font-black text-slate-950 text-sm shadow-md">
+                        2F
+                    </div>
+                    <div>
+                        <div class="flex items-center gap-2">
+                            <span class="text-lg font-black text-white">توفاكسس</span>
+                            <span class="text-xs font-sans font-black tracking-widest text-amber-400">2FAKSS</span>
+                        </div>
+                        <p class="text-xs text-slate-400 font-tajawal">موسوعة أفلام العالم الشاملة للبث والتحميل المباشر</p>
+                    </div>
+                </div>
+
+                <!-- روابط سريعة -->
+                <div class="flex flex-wrap items-center justify-center gap-4 text-xs font-bold text-slate-400">
+                    <button onclick="switchTab('home'); window.scrollTo({top:0, behavior:'smooth'})" class="hover:text-amber-400 transition-colors">الرئيسية</button>
+                    <span>•</span>
+                    <button onclick="switchTab('favorites'); window.scrollTo({top:0, behavior:'smooth'})" class="hover:text-amber-400 transition-colors">قائمة المفضلة</button>
+                    <span>•</span>
+                    <button onclick="switchTab('downloads'); window.scrollTo({top:0, behavior:'smooth'})" class="hover:text-amber-400 transition-colors">مدير التحميلات</button>
+                </div>
+
+                <!-- حقوق النشر -->
+                <div class="text-center md:text-left">
+                    <p class="text-xs text-slate-400 font-tajawal">
+                        جميع الحقوق محفوظة © 2026 منصة <span class="text-amber-400 font-bold">توفاكسس (2FAKSS)</span>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- ===================================================================== -->
+    <!-- 5. نافذة تفاصيل الفيلم وخيارات التحميل (Movie Details & Download Modal) -->
+    <!-- ===================================================================== -->
+    <div id="movieModal" class="fixed inset-0 z-50 hidden items-center justify-center p-3 sm:p-5 bg-black/85 backdrop-blur-md">
+        <div class="bg-[#101625] border border-slate-700/90 rounded-3xl max-w-3xl w-full max-h-[92vh] overflow-y-auto shadow-2xl relative">
+            <button onclick="closeMovieModal()" class="absolute top-4 left-4 z-30 w-10 h-10 rounded-full bg-black/70 hover:bg-rose-600 text-white flex items-center justify-center transition-colors border border-white/15">
+                <i class="fa-solid fa-xmark text-lg"></i>
+            </button>
+            <div id="movieModalBody"></div>
+        </div>
+    </div>
+
+    <!-- ===================================================================== -->
+    <!-- 6. مشغل الفيديو السينمائي المدمج (Custom Cinematic Video Player)      -->
+    <!-- ===================================================================== -->
+    <div id="cinemaPlayerModal" class="fixed inset-0 z-50 hidden items-center justify-center p-3 sm:p-6 bg-black/95 backdrop-blur-lg">
+        <div class="bg-[#090d16] border border-slate-800 rounded-3xl max-w-5xl w-full overflow-hidden shadow-2xl flex flex-col">
+            
+            <!-- الشريط العلوي للمشغل -->
+            <div class="px-5 py-3.5 bg-[#101625] border-b border-slate-800 flex items-center justify-between gap-3">
+                <div class="flex items-center gap-3 min-w-0">
+                    <span class="px-2 py-0.5 rounded bg-amber-500 text-slate-950 font-sans font-black text-[11px] shrink-0">2FAKSS</span>
+                    <span id="playerModeBadge" class="px-2.5 py-1 rounded-lg bg-amber-500/20 text-amber-400 border border-amber-500/30 text-xs font-extrabold shrink-0">
+                        بث مباشر
+                    </span>
+                    <h3 id="playerTitle" class="text-white font-extrabold text-sm sm:text-lg truncate">عنوان الفيلم</h3>
+                </div>
+                <div class="flex items-center gap-2 shrink-0">
+                    <span id="playerQualityBadge" class="px-2.5 py-1 rounded-lg bg-slate-800 text-amber-400 text-xs font-black">1080p HD</span>
+                    <button onclick="closeCinemaPlayer()" class="w-9 h-9 rounded-xl bg-slate-800 hover:bg-rose-600 text-white flex items-center justify-center transition-colors">
+                        <i class="fa-solid fa-xmark"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- شاشة العرض السينمائية -->
+            <div class="relative aspect-video bg-black flex flex-col items-center justify-center overflow-hidden select-none">
+                <!-- خلفية سينمائية متحركة مخصصة لكل فيلم -->
+                <div id="playerVisualBackdrop" class="absolute inset-0 cinema-ambient"></div>
+                <div class="absolute inset-0 bg-gradient-to-t from-black via-black/30 to-black/60"></div>
+
+                <!-- محتوى المشهد المحاكي -->
+                <div class="relative z-10 text-center px-6 max-w-xl">
+                    <div id="playerCenterArt" class="w-20 h-20 sm:w-24 sm:h-24 rounded-3xl bg-white/10 backdrop-blur-md border border-white/20 flex items-center justify-center mx-auto mb-4 shadow-2xl">
+                        <!-- أيقونة الفيلم -->
+                    </div>
+                    <p id="playerSceneText" class="text-white font-extrabold text-lg sm:text-2xl mb-1 drop-shadow">جاري العرض السينمائي...</p>
+                    <p id="playerSubSceneText" class="text-slate-300 text-xs sm:text-sm font-tajawal">معاينة تجريبية داخل مشغل توفاكسس (2FAKSS) — لا يتم بث ملفات محمية بحقوق النشر</p>
+                </div>
+
+                <!-- الترجمة السفلية التفاعلية (Subtitles) -->
+                <div id="playerSubtitleBox" class="absolute bottom-20 inset-x-4 text-center z-10 pointer-events-none">
+                    <span id="playerSubtitleText" class="inline-block bg-black/75 text-amber-100 text-xs sm:text-base font-bold px-4 py-1.5 rounded-lg border border-white/10 shadow-lg">
+                        "في عالم تتقاطع فيه المصائر، تبدأ الرحلة الحقيقية الآن..."
+                    </span>
+                </div>
+
+                <!-- شريط أدوات التحكم السفلي (Custom HTML5-style Controls) -->
+                <div class="absolute bottom-0 inset-x-0 bg-gradient-to-t from-black via-black/90 to-transparent p-4 z-20">
+                    
+                    <!-- شريط التقدم الزمني (Timeline Scrubber) -->
+                    <div class="flex items-center gap-3 mb-3">
+                        <span id="playerCurrentTime" class="text-[11px] font-mono text-slate-300 w-12 text-center">00:18:24</span>
+                        <input 
+                            type="range" 
+                            id="playerTimeline" 
+                            step="any" 
+                            min="0" 
+                            max="100" 
+                            value="15" 
+                            oninput="scrubTimeline(this.value)"
+                            class="flex-1 h-1.5 bg-slate-700 rounded-lg appearance-none cursor-pointer accent-amber-500"
+                        >
+                        <span id="playerTotalTime" class="text-[11px] font-mono text-slate-400 w-12 text-center">02:15:00</span>
+                    </div>
+
+                    <!-- أزرار التشغيل والصوت والترجمة -->
+                    <div class="flex flex-wrap items-center justify-between gap-3">
+                        <div class="flex items-center gap-3 sm:gap-4">
+                            <button onclick="togglePlayerPlay()" class="w-10 h-10 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 flex items-center justify-center font-bold transition-transform active:scale-95">
+                                <i id="playerPlayPauseIcon" class="fa-solid fa-pause text-base"></i>
+                            </button>
+
+                            <button onclick="skipPlayerTime(-1000/8100)" class="text-slate-300 hover:text-white text-xs sm:text-sm font-bold flex items-center gap-1" title="إرجاع 10 ثوان">
+                                <i class="fa-solid fa-rotate-left"></i> 10ث
+                            </button>
+                            <button onclick="skipPlayerTime(1000/8100)" class="text-slate-300 hover:text-white text-xs sm:text-sm font-bold flex items-center gap-1" title="تقديم 10 ثوان">
+                                10ث <i class="fa-solid fa-rotate-right"></i>
+                            </button>
+
+                            <!-- التحكم بالصوت -->
+                            <div class="hidden sm:flex items-center gap-2 bg-slate-900/90 px-3 py-1.5 rounded-xl border border-slate-800">
+                                <button onclick="togglePlayerMute()" class="text-amber-400 hover:text-amber-300 text-sm">
+                                    <i id="playerVolumeIcon" class="fa-solid fa-volume-high"></i>
+                                </button>
+                                <input type="range" id="playerVolumeSlider" min="0" max="100" value="85" oninput="changePlayerVolume(this.value)" class="w-20 h-1 bg-slate-700 rounded-lg appearance-none cursor-pointer accent-amber-500">
+                            </div>
+                        </div>
+
+                        <!-- تبديل لغة الترجمة -->
+                        <div class="flex items-center gap-2">
+                            <button onclick="cycleSubtitleLang()" class="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-xs font-bold text-white flex items-center gap-1.5 transition-colors">
+                                <i class="fa-solid fa-closed-captioning text-amber-400"></i>
+                                <span id="subtitleLangLabel">الترجمة: العربية</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===================================================================== -->
+    <!-- 7. إشعار منبثق (Toast Notification)                                   -->
+    <!-- ===================================================================== -->
+    <div id="toastBox" class="fixed bottom-5 right-5 z-50 transform translate-y-24 opacity-0 transition-all duration-300 pointer-events-none">
+        <div class="bg-[#101625] border border-amber-500/50 text-white px-4 py-3 rounded-2xl shadow-2xl flex items-center gap-3">
+            <div class="w-8 h-8 rounded-xl bg-amber-500/20 text-amber-400 flex items-center justify-center shrink-0">
+                <i class="fa-solid fa-bell"></i>
+            </div>
+            <p id="toastText" class="text-xs sm:text-sm font-bold"></p>
+        </div>
+    </div>
+
+    <!-- ===================================================================== -->
+    <!-- 8. منطق التطبيق الكامل (JavaScript)                                   -->
+    <!-- ===================================================================== -->
+    <script>
+        // -------------------------------------------------------------------------
+        // كتالوج أفلام حقيقية صادرة بين 2024 و2026 عبر البلدان والأنواع المختلفة (74 فيلماً)
+        // ملاحظة: التحميل والمشغل يعملان كمحاكاة/معاينة داخلية للتجربة دون بث كامل غير مرخص
+        // -------------------------------------------------------------------------
+        const MOVIES_CATALOG = [
+            {
+                id: 1,
+                titleAr: "كثيب: الجزء الثاني",
+                titleEn: "Dune: Part Two",
+                year: 2024,
+                category: "الولايات المتحدة",
+                genre: "خيال علمي",
+                rating: 8.5,
+                popularity: 99,
+                duration: "2س 46د",
+                director: "دينيس فيلنوف",
+                cast: ["تيموثي شالاميه", "زيندايا", "ريبيكا فيرغسون", "خافيير بارديم"],
+                synopsis: "يواصل بول أتريدس رحلته إلى جانب تشاني وشعب الفريمن في صراع مصيري على كوكب أراكيس لمواجهة المتآمرين على عائلته.",
+                gradient: "from-amber-700 via-orange-900 to-stone-950",
+                svgType: "planet",
+                featured: false
+            },
+            {
+                id: 2,
+                titleAr: "مشروع هيل ماري",
+                titleEn: "Project Hail Mary",
+                year: 2026,
+                category: "الولايات المتحدة",
+                genre: "خيال علمي",
+                rating: 8.6,
+                popularity: 98,
+                duration: "2س 36د",
+                director: "فيل لورد وكريستوفر ميلر",
+                cast: ["ريان غوسلينغ", "ساندرا هولر", "جيمس أورتيز"],
+                synopsis: "يستيقظ رائد فضاء وحيداً على متن مركبة بعيدة فاقداً للذاكرة، ليكتشف تدريجياً أنه يحمل مهمة علمية أخيرة لإنقاذ كوكب الأرض.",
+                gradient: "from-sky-800 via-indigo-950 to-slate-950",
+                svgType: "atom",
+                featured: false
+            },
+            {
+                id: 3,
+                titleAr: "الأوديسة",
+                titleEn: "The Odyssey",
+                year: 2026,
+                category: "الولايات المتحدة",
+                genre: "مغامرة",
+                rating: 8.7,
+                popularity: 97,
+                duration: "2س 42د",
+                director: "كريستوفر نولان",
+                cast: ["مات ديمون", "توم هولاند", "آن هاثاواي", "روبرت باتينسون"],
+                synopsis: "معالجة سينمائية ملحمية لرحلة أوديسيوس المحفوفة بالمخاطر للعودة إلى وطنه بعد حرب طروادة.",
+                gradient: "from-blue-800 via-slate-900 to-black",
+                svgType: "compass",
+                featured: false
+            },
+            {
+                id: 4,
+                titleAr: "سبايدرمان: يوم جديد كلياً",
+                titleEn: "Spider-Man: Brand New Day",
+                year: 2026,
+                category: "الولايات المتحدة",
+                genre: "أكشن",
+                rating: 8.2,
+                popularity: 96,
+                duration: "2س 25د",
+                director: "ديستين دانيال كريتون",
+                cast: ["توم هولاند", "زيندايا", "سادي سينك", "جون بيرنثال"],
+                synopsis: "يواجه بيتر باركر تحدياً جديداً في نيويورك بعد أن أصبح وجوده منسياً لدى من حوله، وسط تهديد غير متوقع يختبر قدراته.",
+                gradient: "from-red-800 via-rose-950 to-slate-950",
+                svgType: "bolt",
+                featured: false
+            },
+            {
+                id: 5,
+                titleAr: "الروبوت المتوحش",
+                titleEn: "The Wild Robot",
+                year: 2024,
+                category: "الولايات المتحدة",
+                genre: "أنيميشن",
+                rating: 8.3,
+                popularity: 94,
+                duration: "1س 42د",
+                director: "كريس ساندرز",
+                cast: ["لوبيتا نيونغو", "بيدرو باسكال", "كيت كونور"],
+                synopsis: "تجد وحدة الروبوت 'روز' نفسها عالقة في برية نائية، فتتأقلم مع البيئة وتعتني بصغير إوز في رحلة مؤثرة عن البقاء والانتماء.",
+                gradient: "from-teal-700 via-emerald-950 to-slate-950",
+                svgType: "robot",
+                featured: false
+            },
+            {
+                id: 6,
+                titleAr: "حكاية لعبة 5",
+                titleEn: "Toy Story 5",
+                year: 2026,
+                category: "الولايات المتحدة",
+                genre: "أنيميشن",
+                rating: 8.0,
+                popularity: 93,
+                duration: "1س 42د",
+                director: "أندرو ستانتون",
+                cast: ["توم هانكس", "تيم ألين", "جوان كوزاك", "غريتا لي"],
+                synopsis: "تواجه الألعاب الكلاسيكية تحدياً جديداً في عصر الأجهزة والمنصات الرقمية الحديثة مع استمرار صداقتهم ومغامراتهم.",
+                gradient: "from-amber-600 via-sky-900 to-slate-950",
+                svgType: "star",
+                featured: false
+            },
+            {
+                id: 7,
+                titleAr: "فلسطين 36",
+                titleEn: "Palestine 36",
+                year: 2025,
+                category: "بريطانيا",
+                genre: "دراما",
+                rating: 8.4,
+                popularity: 95,
+                duration: "1س 59د",
+                director: "آن ماري جاسر",
+                cast: ["هيام عباس", "كامل الباشا", "صالح بكري", "ياسمين المصري"],
+                synopsis: "يرصد الفيلم أحداث عام 1936 في فلسطين خلال فترة الانتداب البريطاني وتصاعد التحولات الاجتماعية والسياسية في المدن والقرى.",
+                gradient: "from-emerald-800 via-stone-900 to-black",
+                svgType: "star",
+                featured: false
+            },
+            {
+                id: 8,
+                titleAr: "رحلة 404",
+                titleEn: "Flight 404",
+                year: 2024,
+                category: "مصر",
+                genre: "دراما",
+                rating: 7.7,
+                popularity: 91,
+                duration: "1س 55د",
+                director: "هاني خليفة",
+                cast: ["منى زكي", "محمد فراج", "محمد ممدوح", "شيرين رضا"],
+                synopsis: "تجد غادة نفسها أمام ظرف طارئ قبيل سفرها لأداء فريضة الحج، ما يدفعها للتواصل مع معارف من الماضي لحل أزمتها في وقت قصير.",
+                gradient: "from-teal-800 via-cyan-950 to-slate-950",
+                svgType: "plane",
+                featured: false
+            },
+            {
+                id: 9,
+                titleAr: "هوبال",
+                titleEn: "Hobal",
+                year: 2024,
+                category: "السعودية",
+                genre: "دراما",
+                rating: 8.1,
+                popularity: 88,
+                duration: "1س 34د",
+                director: "عبد العزيز الشلاحي",
+                cast: ["إبراهيم الحساوي", "مشعل المطيري", "ميلا الزهراني"],
+                synopsis: "تنتقل عائلة للعيش في عزلة داخل الصحراء، لتواجه توترات عائلية ومعتقدات متباينة تختبر تماسكها في مواجهة العزلة.",
+                gradient: "from-amber-800 via-yellow-950 to-stone-950",
+                svgType: "flame",
+                featured: false
+            },
+            {
+                id: 10,
+                titleAr: "لا أرض أخرى",
+                titleEn: "No Other Land",
+                year: 2024,
+                category: "وثائقي دولي",
+                genre: "دراما",
+                rating: 8.6,
+                popularity: 94,
+                duration: "1س 36د",
+                director: "باسل عدرا، حمدان بلال، يوفال أبراهام، راشيل سزور",
+                cast: ["باسل عدرا", "حمدان بلال", "يوفال أبراهام"],
+                synopsis: "عمل وثائقي يوثّق على مدى سنوات محاولات الحفاظ على مسافر يطا في الضفة الغربية والعلاقة التي تنشأ بين صانعي الفيلم.",
+                gradient: "from-stone-700 via-neutral-900 to-black",
+                svgType: "key",
+                featured: false
+            },
+            {
+                id: 11,
+                titleAr: "السيد لا أحد ضد بوتين",
+                titleEn: "Mr. Nobody Against Putin",
+                year: 2025,
+                category: "وثائقي دولي",
+                genre: "غموض",
+                rating: 8.2,
+                popularity: 86,
+                duration: "1س 30د",
+                director: "ديفيد بورينشتاين وبافيل تالانكين",
+                cast: ["بافيل تالانكين"],
+                synopsis: "توثيق سينمائي يتابع معلماً في مدرسة روسية يوثّق سراً تغيرات المناهج والضغوط المؤسسية داخل المدارس المحلية.",
+                gradient: "from-slate-700 via-zinc-900 to-black",
+                svgType: "scale",
+                featured: false
+            },
+            {
+                id: 12,
+                titleAr: "أفيال الأشباح",
+                titleEn: "Ghost Elephants",
+                year: 2025,
+                category: "وثائقي دولي",
+                genre: "مغامرة",
+                rating: 8.0,
+                popularity: 85,
+                duration: "1س 37د",
+                director: "فيرنر هرتزوغ",
+                cast: ["فيرنر هرتزوغ", "ستيف بويز"],
+                synopsis: "يتتبع الفيلم جهود البحث في مرتفعات أنغولا عن قطيع أفيال يُقال إنه يمتلك خصائص نادرة ويظهر في ظروف استثنائية.",
+                gradient: "from-emerald-900 via-slate-900 to-black",
+                svgType: "compass",
+                featured: false
+            },
+            {
+                id: 13,
+                titleAr: "إكس هوما",
+                titleEn: "Exhuma",
+                year: 2024,
+                category: "كوريا الجنوبية",
+                genre: "رعب",
+                rating: 7.4,
+                popularity: 90,
+                duration: "2س 14د",
+                director: "جانغ جاي هيون",
+                cast: ["تشوي مين سيك", "كيم غو أون", "يو هاي جين"],
+                synopsis: "يستعين فريق من الممارسين الروحانيين وخبراء الجغرافيا الروحية بنقل قبر قديم في كوريا الجنوبية، لتبدأ سلسلة أحداث غامضة ومقلقة.",
+                gradient: "from-purple-900 via-slate-950 to-black",
+                svgType: "ghost",
+                featured: false
+            },
+            {
+                id: 14,
+                titleAr: "ماذا كان ينبغي أن نفعل؟",
+                titleEn: "What Should We Have Done?",
+                year: 2024,
+                category: "اليابان",
+                genre: "دراما",
+                rating: 7.9,
+                popularity: 84,
+                duration: "1س 42د",
+                director: "تومواكي فوجينو",
+                cast: ["عائلة المخرج تومواكي فوجينو"],
+                synopsis: "وثائقي درامي ياباني يتناول بصراحة تجربة أسرية طويلة حول المرض النفسي وكيفية تعامل الأسرة مع العزلة والوصمة الاجتماعية.",
+                gradient: "from-indigo-900 via-slate-900 to-black",
+                svgType: "wave",
+                featured: false
+            },
+            {
+                id: 15,
+                titleAr: "25 قطة من قطر",
+                titleEn: "25 Cats From Qatar",
+                year: 2025,
+                category: "اليابان",
+                genre: "كوميديا",
+                rating: 7.6,
+                popularity: 82,
+                duration: "1س 22د",
+                director: "ماي هوانغ",
+                cast: ["ماي هوانغ"],
+                synopsis: "عمل يجمع بين الطرافة والدفء الإنساني حول رعاية القطط المشردة ومحاولة توفير حياة آمنة لها وسط يوميات مليئة بالمفارقات.",
+                gradient: "from-amber-700 via-rose-950 to-slate-950",
+                svgType: "smile",
+                featured: false
+            },
+            {
+                id: 16,
+                titleAr: "هاميت",
+                titleEn: "Hamnet",
+                year: 2025,
+                category: "بريطانيا",
+                genre: "دراما",
+                rating: 8.3,
+                popularity: 92,
+                duration: "2س 06د",
+                director: "كلوي تشاو",
+                cast: ["جيسي باكلي", "بول ميسكال", "إميلي واتسون", "جو ألوين"],
+                synopsis: "يتناول الفيلم الحياة الأسرية لويليام شكسبير وزوجته أغنيس وكيفية تعاملهما مع فقدان ابنهما هامنيت في إنجلترا خلال القرن السادس عشر.",
+                gradient: "from-rose-900 via-stone-900 to-black",
+                svgType: "key",
+                featured: false
+            },
+            {
+                id: 17,
+                titleAr: "روز",
+                titleEn: "Rose",
+                year: 2026,
+                category: "ألمانيا",
+                genre: "غموض",
+                rating: 8.1,
+                popularity: 87,
+                duration: "1س 52د",
+                director: "ماركوس شلاينزر",
+                cast: ["ساندرا هولر"],
+                synopsis: "دراما نفسية غامضة تتمحور حول امرأة تحاول إعادة بناء هويتها ومكانتها في مجتمع منعزل وسط أسرار تتكشف تدريجياً.",
+                gradient: "from-cyan-900 via-slate-900 to-black",
+                svgType: "scale",
+                featured: false
+            },
+            {
+                id: 18,
+                titleAr: "ماراما",
+                titleEn: "Mārama",
+                year: 2025,
+                category: "أستراليا",
+                genre: "رعب",
+                rating: 7.8,
+                popularity: 83,
+                duration: "1س 48د",
+                director: "تاراكوما كيريسوما",
+                cast: ["أورا كيريسوما", "توبياس ماكفيرسون"],
+                synopsis: "في أجواء قوطية قاتمة بالقرن التاسع عشر، تتشابك الموروثات الثقافية مع حوادث غامضة تثير الرعب في قصر ناءٍ.",
+                gradient: "from-violet-950 via-slate-950 to-black",
+                svgType: "ghost",
+                featured: false
+            },
+            {
+                id: 19,
+                titleAr: "بوردر 2",
+                titleEn: "Border 2",
+                year: 2026,
+                category: "الهند",
+                genre: "أكشن",
+                rating: 7.6,
+                popularity: 91,
+                duration: "2س 35د",
+                director: "أنوراغ سينغ",
+                cast: ["ساني ديول", "فارون دهاوان", "ديلجيت دوسانجه", "أهان شيتي"],
+                synopsis: "عمل حربي حركي ضخم يستكمل أجواء المواجهات الحدودية والمهام العسكرية في سياق درامي مشوّق.",
+                gradient: "from-orange-800 via-red-950 to-stone-950",
+                svgType: "shield",
+                featured: false
+            },
+            {
+                id: 20,
+                titleAr: "مرداني 3",
+                titleEn: "Mardaani 3",
+                year: 2026,
+                category: "الهند",
+                genre: "غموض",
+                rating: 7.5,
+                popularity: 86,
+                duration: "2س 10د",
+                director: "أبهيراج ميناوالا",
+                cast: ["راني موخرجي", "جانكي بوديوالا"],
+                synopsis: "تعود المحققة شيفاني شيفاجي روي لمتابعة قضية تحقيق معقدة تتطلب سرعة بديهة ومواجهة شبكة خطيرة.",
+                gradient: "from-red-900 via-slate-900 to-black",
+                svgType: "bolt",
+                featured: false
+            },
+            {
+                id: 21,
+                titleAr: "أو روميو",
+                titleEn: "O'Romeo",
+                year: 2026,
+                category: "الهند",
+                genre: "أكشن",
+                rating: 7.7,
+                popularity: 85,
+                duration: "2س 18د",
+                director: "فيشال بهاردواج",
+                cast: ["شاهيد كابور", "تريبتي ديمري", "نانا باتيكار"],
+                synopsis: "دراما أكشن مشوّقة يخرجها فيشال بهاردواج بمزيج من الصراعات الحادة والشخصيات المتشابكة.",
+                gradient: "from-amber-800 via-rose-950 to-slate-950",
+                svgType: "flame",
+                featured: false
+            },
+            {
+                id: 22,
+                titleAr: "إيكيس",
+                titleEn: "Ikkis",
+                year: 2026,
+                category: "الهند",
+                genre: "دراما",
+                rating: 7.8,
+                popularity: 84,
+                duration: "2س 12د",
+                director: "سريرام راغافان",
+                cast: ["دارمندرا", "أغاستيا ناندا", "جايديب أهلاوات"],
+                synopsis: "سيرة درامية يخرجها سريرام راغافان وتتناول مسيرة شاب في مقتبل العمر أمام تحديات مفصلية.",
+                gradient: "from-yellow-700 via-amber-950 to-slate-950",
+                svgType: "star",
+                featured: false
+            },
+            {
+                id: 23,
+                titleAr: "قلباً وقالباً 2",
+                titleEn: "Inside Out 2",
+                year: 2024,
+                category: "الولايات المتحدة",
+                genre: "كوميديا",
+                rating: 7.6,
+                popularity: 95,
+                duration: "1س 36د",
+                director: "كيلسي مان",
+                cast: ["إيمي بولر", "مايا هوك", "فيليس سميث"],
+                synopsis: "مع دخول رايلي مرحلة المراهقة، تظهر مشاعر جديدة داخل مقر التحكم في ذهنها لتغيّر ديناميكية المواقف اليومية بطابع كوميدي إنساني.",
+                gradient: "from-orange-600 via-purple-950 to-slate-950",
+                svgType: "smile",
+                featured: false
+            },
+            {
+                id: 24,
+                titleAr: "الذيل الأزرق",
+                titleEn: "The Blue Trail",
+                year: 2025,
+                category: "البرازيل",
+                genre: "مغامرة",
+                rating: 7.9,
+                popularity: 81,
+                duration: "1س 45د",
+                director: "غابرييل ماسكارو",
+                cast: ["دينيز واينبرغ", "رودريغو سانتورو"],
+                synopsis: "مغامرة إنسانية تتابع رحلة بحث عن الحرية وبداية جديدة في مرحلة متقدمة من العمر وسط طبيعة مفتوحة.",
+                gradient: "from-blue-700 via-sky-950 to-slate-950",
+                svgType: "wave",
+                featured: false
+            },
+            {
+                id: 25,
+                titleAr: "ديدبول وولفرين",
+                titleEn: "Deadpool & Wolverine",
+                year: 2024,
+                category: "الولايات المتحدة",
+                genre: "أكشن",
+                rating: 7.6,
+                popularity: 98,
+                duration: "2س 08د",
+                director: "شون ليفي",
+                cast: ["ريان رينولدز", "هيو جاكمان", "إيما كورين"],
+                synopsis: "يجد ويد ويلسون نفسه في مهمة تتقاطع فيها الأكوان المتوازية فيضطر للتحالف مع وولفرين في مغامرة مليئة بالإثارة والكوميديا السوداء.",
+                gradient: "from-red-700 via-amber-900 to-slate-950",
+                svgType: "bolt",
+                featured: false
+            },
+            {
+                id: 26,
+                titleAr: "توسترز",
+                titleEn: "Twisters",
+                year: 2024,
+                category: "الولايات المتحدة",
+                genre: "مغامرة",
+                rating: 6.5,
+                popularity: 92,
+                duration: "2س 02د",
+                director: "لي إسحاق تشونغ",
+                cast: ["ديزي إدغار جونز", "غلين باول", "أنتوني راموس"],
+                synopsis: "تنضم عالمة أرصاد سابقة إلى صائد عواصف جريء لاختبار نظام رادار متطور في قلب السهول الأمريكية وسط أعاصير عنيفة.",
+                gradient: "from-slate-600 via-sky-950 to-slate-950",
+                svgType: "wave",
+                featured: false
+            },
+            {
+                id: 27,
+                titleAr: "ويكد",
+                titleEn: "Wicked",
+                year: 2024,
+                category: "الولايات المتحدة",
+                genre: "دراما",
+                rating: 7.5,
+                popularity: 93,
+                duration: "2س 40د",
+                director: "جون إم. تشو",
+                cast: ["سينثيا إيريفو", "أريانا غراندي", "جوناثان بيلي", "جيف غولدبلوم"],
+                synopsis: "تنشأ صداقة غير متوقعة بين إلفابا وغليندا في أرض أوز قبل أن تتباين مساراتهما وتتشكل هويتهما الأسطورية.",
+                gradient: "from-emerald-700 via-pink-950 to-slate-950",
+                svgType: "star",
+                featured: false
+            },
+            {
+                id: 28,
+                titleAr: "بيتلجوس بيتلجوس",
+                titleEn: "Beetlejuice Beetlejuice",
+                year: 2024,
+                category: "الولايات المتحدة",
+                genre: "كوميديا",
+                rating: 6.7,
+                popularity: 91,
+                duration: "1س 45د",
+                director: "تيم بيرتون",
+                cast: ["مايكل كيتون", "وينونا رايدر", "جينا أورتيغا", "كاثرين أوهارا"],
+                synopsis: "تعود عائلة ديتز إلى وينتر ريفر بعد مأساة عائلية، لتفتح بوابة العالم الآخر وتستدعي بيتلجوس مجدداً وسط فوضى طريفة وغريبة.",
+                gradient: "from-purple-800 via-zinc-900 to-black",
+                svgType: "ghost",
+                featured: false
+            },
+            {
+                id: 29,
+                titleAr: "مملكة كوكب القردة",
+                titleEn: "Kingdom of the Planet of the Apes",
+                year: 2024,
+                category: "الولايات المتحدة",
+                genre: "خيال علمي",
+                rating: 6.9,
+                popularity: 90,
+                duration: "2س 25د",
+                director: "ويس بول",
+                cast: ["أوين تيغ", "فريا آلان", "كيفن دوراند"],
+                synopsis: "بعد أجيال من حكم قيصر، ينطلق شاب من القردة في رحلة شاقة تتحدى المفاهيم السائدة حول الماضي والمستقبل.",
+                gradient: "from-teal-800 via-slate-900 to-black",
+                svgType: "planet",
+                featured: false
+            },
+            {
+                id: 30,
+                titleAr: "موفاسا: الأسد الملك",
+                titleEn: "Mufasa: The Lion King",
+                year: 2024,
+                category: "الولايات المتحدة",
+                genre: "أنيميشن",
+                rating: 6.6,
+                popularity: 93,
+                duration: "1س 58د",
+                director: "باري جينكينز",
+                cast: ["آرون بيير", "كيلفن هاريسون جونيور", "تيفاني بون"],
+                synopsis: "يُروى صعود شبل يتيم يُدعى موفاسا عبر رحلة مليئة بالمخاطر والصداقة حتى يصبح ملكاً على أرض العزة.",
+                gradient: "from-amber-700 via-yellow-950 to-stone-950",
+                svgType: "flame",
+                featured: false
+            },
+            {
+                id: 31,
+                titleAr: "موانا 2",
+                titleEn: "Moana 2",
+                year: 2024,
+                category: "الولايات المتحدة",
+                genre: "أنيميشن",
+                rating: 6.6,
+                popularity: 92,
+                duration: "1س 40د",
+                director: "ديفيد ج. ديريك جونيور، دانا ليدو ميلر، جيسون هاند",
+                cast: ["أوليي كرافالو", "دواين جونسون"],
+                synopsis: "تبحر موانا مجدداً إلى أعماق المحيطات البعيدة والخطيرة بعد تلقي نداء غير متوقع من أسلافها لتوحيد جزر المحيط.",
+                gradient: "from-cyan-700 via-blue-950 to-slate-950",
+                svgType: "wave",
+                featured: false
+            },
+            {
+                id: 32,
+                titleAr: "سونيك القنفذ 3",
+                titleEn: "Sonic the Hedgehog 3",
+                year: 2024,
+                category: "الولايات المتحدة",
+                genre: "أكشن",
+                rating: 6.9,
+                popularity: 91,
+                duration: "1س 50د",
+                director: "جيف فاولر",
+                cast: ["بن شوارتز", "إدريس إلبا", "كيانو ريفز", "جيم كاري"],
+                synopsis: "يتحد سونيك وتيلز ونكلز لمواجهة خصم غامض وقوي يُدعى شادو يمتلك قدرات خارقة تهدد التوازن.",
+                gradient: "from-blue-700 via-red-950 to-slate-950",
+                svgType: "bolt",
+                featured: false
+            },
+            {
+                id: 33,
+                titleAr: "الأسلحة",
+                titleEn: "Weapons",
+                year: 2025,
+                category: "الولايات المتحدة",
+                genre: "رعب",
+                rating: 7.8,
+                popularity: 90,
+                duration: "2س 08د",
+                director: "زاك كريغر",
+                cast: ["جوش برولين", "جوليا غارنر", "ألدين إيرينرايش"],
+                synopsis: "دراما رعب وغموض متشابكة الخيوط تبدأ باختفاء غامض لمجموعة أطفال في التوقيت نفسه داخل بلدة أمريكية.",
+                gradient: "from-red-950 via-zinc-900 to-black",
+                svgType: "ghost",
+                featured: false
+            },
+            {
+                id: 34,
+                titleAr: "فرانكنشتاين",
+                titleEn: "Frankenstein",
+                year: 2025,
+                category: "الولايات المتحدة",
+                genre: "خيال علمي",
+                rating: 7.7,
+                popularity: 89,
+                duration: "2س 29د",
+                director: "غيليرمو ديل تورو",
+                cast: ["أوسكار إسحاق", "جاكوب إلوردي", "ميا غوث", "كريستوف فالتز"],
+                synopsis: "رؤية سينمائية قوطية يخرجها غيليرمو ديل تورو لتجربة علمية جريئة تخلق كائناً حياً وتواجه تبعاتها الأخلاقية والإنسانية.",
+                gradient: "from-emerald-950 via-slate-900 to-black",
+                svgType: "atom",
+                featured: false
+            },
+            {
+                id: 35,
+                titleAr: "الجريمة 101",
+                titleEn: "Crime 101",
+                year: 2026,
+                category: "الولايات المتحدة",
+                genre: "غموض",
+                rating: 7.3,
+                popularity: 88,
+                duration: "2س 15د",
+                director: "بارت لايتون",
+                cast: ["كريس هيمسوورث", "مارك رافالو", "هالي بيري", "باري كيوغان"],
+                synopsis: "سلسلة سرقات دقيقة على طول الطريق السريع 101 في كاليفورنيا تضع لصاً حذراً في مواجهة محقق عنيد.",
+                gradient: "from-amber-900 via-slate-900 to-black",
+                svgType: "key",
+                featured: false
+            },
+            {
+                id: 36,
+                titleAr: "اللحظة",
+                titleEn: "The Moment",
+                year: 2026,
+                category: "الولايات المتحدة",
+                genre: "كوميديا",
+                rating: 7.2,
+                popularity: 82,
+                duration: "1س 44د",
+                director: "أيدان زاميري",
+                cast: ["تشارلي إكس سي إكس", "ألكسندر سكارسغارد", "روزانا أركيت"],
+                synopsis: "عمل ساخر يسلط الضوء على كواليس الشهرة وضغوط الجولات الفنية واللقاءات غير المتوقعة في عالم الموسيقى المعاصر.",
+                gradient: "from-fuchsia-900 via-slate-900 to-black",
+                svgType: "smile",
+                featured: false
+            },
+            {
+                id: 37,
+                titleAr: "المصارع الثاني",
+                titleEn: "Gladiator II",
+                year: 2024,
+                category: "بريطانيا",
+                genre: "أكشن",
+                rating: 6.5,
+                popularity: 94,
+                duration: "2س 28د",
+                director: "ريدلي سكوت",
+                cast: ["بول ميسكال", "بيدرو باسكال", "دينزل واشنطن", "كوني نيلسن"],
+                synopsis: "بعد سنوات من سقوط ماكسيموس، يُجبر لوسيوس على دخول حلبة المصارعة في روما وسط صراعات سياسية على السلطة.",
+                gradient: "from-amber-800 via-red-950 to-black",
+                svgType: "shield",
+                featured: false
+            },
+            {
+                id: 38,
+                titleAr: "28 عاماً بعد ذلك: معبد العظام",
+                titleEn: "28 Years Later: The Bone Temple",
+                year: 2026,
+                category: "بريطانيا",
+                genre: "رعب",
+                rating: 7.4,
+                popularity: 91,
+                duration: "1س 55د",
+                director: "نيا داكوستا",
+                cast: ["رالف فاينز", "جاك أوكونيل", "آرون تايلور جونسون", "كيليان مورفي"],
+                synopsis: "تتواصل الرحلة في عالم ما بعد الوباء داخل بريطانيا مع انكشاف أسرار جديدة ومواجهات خطيرة حول معبد العظام.",
+                gradient: "from-stone-800 via-red-950 to-black",
+                svgType: "ghost",
+                featured: false
+            },
+            {
+                id: 39,
+                titleAr: "مرتفعات ويذرينغ",
+                titleEn: "Wuthering Heights",
+                year: 2026,
+                category: "بريطانيا",
+                genre: "دراما",
+                rating: 7.1,
+                popularity: 89,
+                duration: "2س 12د",
+                director: "إميرالد فينيل",
+                cast: ["مارغو روبي", "جاكوب إلوردي"],
+                synopsis: "معالجة درامية عاصفة لقصة الحب والانتقام في المرتفعات الإنجليزية الموحشة حيث تتقاطع المشاعر العميقة مع الكبرياء.",
+                gradient: "from-rose-950 via-stone-900 to-black",
+                svgType: "flame",
+                featured: false
+            },
+            {
+                id: 40,
+                titleAr: "شجرة الفارواي السحرية",
+                titleEn: "The Magic Faraway Tree",
+                year: 2026,
+                category: "بريطانيا",
+                genre: "مغامرة",
+                rating: 7.0,
+                popularity: 85,
+                duration: "1س 48د",
+                director: "بن غريغور",
+                cast: ["أندرو غارفيلد", "كلير فوي", "نيكولا كوغلان"],
+                synopsis: "تكتشف عائلة شجرة سحرية غامضة تقود قمتها المتغيرة باستمرار إلى عوالم خيالية مليئة بالمغامرات والعجائب.",
+                gradient: "from-emerald-700 via-teal-950 to-slate-950",
+                svgType: "compass",
+                featured: false
+            },
+            {
+                id: 41,
+                titleAr: "شون ذا شيب: وحش موس بوتوم",
+                titleEn: "Shaun the Sheep: The Beast of Mossy Bottom",
+                year: 2026,
+                category: "بريطانيا",
+                genre: "أنيميشن",
+                rating: 7.5,
+                popularity: 83,
+                duration: "1س 28د",
+                director: "ستيف كوكس، ماثيو ووكر",
+                cast: ["جاستن فليتشر", "جون سباركس"],
+                synopsis: "تشتعل الفوضى الكوميدية في المزرعة عندما تظهر شائعات عن وحش غامض في منطقة موس بوتوم.",
+                gradient: "from-lime-700 via-emerald-950 to-slate-950",
+                svgType: "smile",
+                featured: false
+            },
+            {
+                id: 42,
+                titleAr: "مخزن بارد",
+                titleEn: "Cold Storage",
+                year: 2026,
+                category: "بريطانيا",
+                genre: "رعب",
+                rating: 6.8,
+                popularity: 80,
+                duration: "1س 39د",
+                director: "جوني كامبل",
+                cast: ["ليام نيسون", "جو كيري", "جورجينا كامبل"],
+                synopsis: "يجد موظفان في منشأة تخزين تحت الأرض نفسيهما في سباق مع الزمن لاحتواء خطر بيولوجي يتسرب من مستويات قديمة.",
+                gradient: "from-cyan-950 via-slate-900 to-black",
+                svgType: "atom",
+                featured: false
+            },
+            {
+                id: 43,
+                titleAr: "الكونت دي مونت كريستو",
+                titleEn: "The Count of Monte Cristo",
+                year: 2024,
+                category: "فرنسا",
+                genre: "مغامرة",
+                rating: 7.6,
+                popularity: 92,
+                duration: "2س 58د",
+                director: "ماتيو ديلابورت، ألكسندر دو لا باتوليير",
+                cast: ["بيير نيني", "باستيان بويون", "أنايس ديموستييه"],
+                synopsis: "بعد سنوات من السجن الظالم في قلعة بحرية، يفر إدموند دانتيس بهوية جديدة لتنفيذ خطة انتقام مدروسة بعناية.",
+                gradient: "from-amber-900 via-slate-900 to-black",
+                svgType: "shield",
+                featured: false
+            },
+            {
+                id: 44,
+                titleAr: "الموجة الجديدة",
+                titleEn: "Nouvelle Vague",
+                year: 2025,
+                category: "فرنسا",
+                genre: "دراما",
+                rating: 7.7,
+                popularity: 84,
+                duration: "1س 46د",
+                director: "ريتشارد لينكليتر",
+                cast: ["زوي دويتش", "غيوم ماربيك", "أوبري دولان"],
+                synopsis: "يستعيد الفيلم أجواء باريس عام 1959 وتجربة صناعة السينما المستقلة التي غيّرت قواعد الفن السابع.",
+                gradient: "from-indigo-800 via-slate-900 to-black",
+                svgType: "star",
+                featured: false
+            },
+            {
+                id: 45,
+                titleAr: "صوت هند رجب",
+                titleEn: "The Voice of Hind Rajab",
+                year: 2025,
+                category: "فرنسا",
+                genre: "دراما",
+                rating: 8.5,
+                popularity: 93,
+                duration: "1س 29د",
+                director: "كوثر بن هنية",
+                cast: ["معتز ملحيس", "سجى كيلاني"],
+                synopsis: "عمل درامي إنساني يستند إلى نداء استغاثة حقيقي للطفلة هند رجب ومتابعة محاولات إنقاذها وسط ظروف مأساوية.",
+                gradient: "from-rose-900 via-slate-950 to-black",
+                svgType: "key",
+                featured: false
+            },
+            {
+                id: 46,
+                titleAr: "الحلزون الأبيض",
+                titleEn: "White Snail",
+                year: 2025,
+                category: "ألمانيا",
+                genre: "دراما",
+                rating: 7.5,
+                popularity: 79,
+                duration: "1س 56د",
+                director: "إلسا كريمر، أدريان غوينينغر",
+                cast: ["ميكايل شنايدر", "إلسا كريمر"],
+                synopsis: "دراما أوروبية شاعرية تتابع علاقة إنسانية هشة وسط مدينة هادئة تتقاطع فيها الوحدة مع البحث عن معنى جديد.",
+                gradient: "from-slate-800 via-zinc-900 to-black",
+                svgType: "wave",
+                featured: false
+            },
+            {
+                id: 47,
+                titleAr: "بومبي: تحت الغيوم",
+                titleEn: "Pompei: Below the Clouds",
+                year: 2025,
+                category: "إيطاليا",
+                genre: "دراما",
+                rating: 8.0,
+                popularity: 82,
+                duration: "1س 54د",
+                director: "جيانفرانكو روزي",
+                cast: ["أهالي منطقة فيزوف وبومبي"],
+                synopsis: "لوحة سينمائية وثائقية درامية ترصد حياة السكان اليومية في ظلال بركان فيزوف وبين بقايا مدينة بومبي التاريخية.",
+                gradient: "from-orange-950 via-stone-900 to-black",
+                svgType: "flame",
+                featured: false
+            },
+            {
+                id: 48,
+                titleAr: "صراط",
+                titleEn: "Sirāt",
+                year: 2025,
+                category: "إسبانيا",
+                genre: "مغامرة",
+                rating: 7.8,
+                popularity: 83,
+                duration: "1س 55د",
+                director: "أوليفر لاشي",
+                cast: ["سيرجي لوبيز", "برونو نونييز"],
+                synopsis: "رحلة عبر مساحات صحراوية مفتوحة ورمزية تختبر الصبر والبقاء وسط تحديات طبيعية وإنسانية متصاعدة.",
+                gradient: "from-amber-800 via-stone-900 to-black",
+                svgType: "compass",
+                featured: false
+            },
+            {
+                id: 49,
+                titleAr: "كوكوهو",
+                titleEn: "Kokuho",
+                year: 2025,
+                category: "اليابان",
+                genre: "دراما",
+                rating: 7.9,
+                popularity: 84,
+                duration: "2س 30د",
+                director: "لي سانغ إيل",
+                cast: ["ريو يوشيزاوا", "كين واتانابي"],
+                synopsis: "ملحمة درامية يابانية تتبع مسيرة فنانين في مسرح الكابوكي وما يرافقها من تنافس وانضباط وتضحيات شخصية.",
+                gradient: "from-red-900 via-slate-900 to-black",
+                svgType: "star",
+                featured: false
+            },
+            {
+                id: 50,
+                titleAr: "عائلة للإيجار",
+                titleEn: "Rental Family",
+                year: 2025,
+                category: "اليابان",
+                genre: "كوميديا",
+                rating: 7.6,
+                popularity: 86,
+                duration: "1س 48د",
+                director: "هيكاري",
+                cast: ["بريندان فريزر", "تاكيهيرو هيرا", "ماري ياماموتو"],
+                synopsis: "يعمل ممثل أمريكي مقيم في طوكيو ضمن وكالة لتأجير أفراد عائلة بديلة، ليجد نفسه منخرطاً بعمق في حيوات غرباء.",
+                gradient: "from-sky-800 via-slate-900 to-black",
+                svgType: "smile",
+                featured: false
+            },
+            {
+                id: 51,
+                titleAr: "كعكة الرئيس",
+                titleEn: "The President's Cake",
+                year: 2025,
+                category: "العراق",
+                genre: "دراما",
+                rating: 8.2,
+                popularity: 88,
+                duration: "1س 42د",
+                director: "حسن هادي",
+                cast: ["بنين أحمد نايف", "سجاد محمد قاسم"],
+                synopsis: "في ظل شحّ المواد الغذائية، تكافح طفلة صغيرة للعثور على مكونات إعداد كعكة في مهمة محفوفة بالمخاطر والقلق.",
+                gradient: "from-amber-700 via-stone-900 to-black",
+                svgType: "key",
+                featured: false
+            },
+            {
+                id: 52,
+                titleAr: "عيد ميلاد سعيد",
+                titleEn: "Happy Birthday",
+                year: 2025,
+                category: "مصر",
+                genre: "دراما",
+                rating: 7.8,
+                popularity: 85,
+                duration: "1س 38د",
+                director: "سارة جوهر",
+                cast: ["نيللي كريم", "حنان مطاوع", "شريف الدسوقي"],
+                synopsis: "دراما إنسانية رقيقة تتناول الفروق الطبقية وتفاصيل الطفولة والانتماء من خلال علاقة يومية مؤثرة في القاهرة.",
+                gradient: "from-rose-800 via-amber-950 to-slate-950",
+                svgType: "smile",
+                featured: false
+            },
+            {
+                id: 53,
+                titleAr: "هجرة",
+                titleEn: "Hijra",
+                year: 2025,
+                category: "السعودية",
+                genre: "مغامرة",
+                rating: 7.7,
+                popularity: 84,
+                duration: "1س 56د",
+                director: "شهد أمين",
+                cast: ["خيرية أبو لبن", "لمار فدان", "نواف الظفيري"],
+                synopsis: "تنطلق جدة وحفيدتان في رحلة برية طويلة من الجنوب نحو مكة المكرمة، لتتكشف خلال الطريق أسرار عائلية وذكريات قديمة.",
+                gradient: "from-amber-800 via-orange-950 to-stone-950",
+                svgType: "compass",
+                featured: false
+            },
+            {
+                id: 54,
+                titleAr: "ملكة القطن",
+                titleEn: "Cotton Queen",
+                year: 2025,
+                category: "السودان",
+                genre: "دراما",
+                rating: 7.9,
+                popularity: 85,
+                duration: "1س 44د",
+                director: "سوزانا ميرغني",
+                cast: ["مودة حسن", "إسلام مبارك", "ربى داوود"],
+                synopsis: "في قرية سودانية تشتهر بزراعة القطن، تواجه شابة طموحة ضغوط التقاليد وتطلعات التغيير في عمل درامي إنساني عميق.",
+                gradient: "from-emerald-800 via-stone-900 to-black",
+                svgType: "star",
+                featured: false
+            },
+            {
+                id: 55,
+                titleAr: "السودان يا ذكرى",
+                titleEn: "Sudan, Remember Us",
+                year: 2024,
+                category: "السودان",
+                genre: "دراما",
+                rating: 8.1,
+                popularity: 84,
+                duration: "1س 32د",
+                director: "هند المؤمن",
+                cast: ["هند المؤمن", "شباب السينما السودانية"],
+                synopsis: "عمل سينمائي يمزج بين التوثيق والخيال الشعري لاستحضار الذاكرة الجماعية والحلم بالسلام لدى جيل شاب.",
+                gradient: "from-amber-900 via-slate-900 to-black",
+                svgType: "wave",
+                featured: false
+            },
+            {
+                id: 56,
+                titleAr: "المسك الأبيض",
+                titleEn: "White Musk",
+                year: 2026,
+                category: "السودان",
+                genre: "دراما",
+                rating: 7.7,
+                popularity: 80,
+                duration: "1س 40د",
+                director: "سوداني / إنتاج مستقل",
+                cast: ["طاقم السينما السودانية"],
+                synopsis: "دراما معاصرة تستحضر التفاصيل الحسية والذاكرة العائلية والبحث عن السكينة وسط تحولات الحياة اليومية.",
+                gradient: "from-stone-700 via-slate-900 to-black",
+                svgType: "key",
+                featured: false
+            },
+            {
+                id: 57,
+                titleAr: "العميل السري",
+                titleEn: "The Secret Agent",
+                year: 2025,
+                category: "البرازيل",
+                genre: "غموض",
+                rating: 8.1,
+                popularity: 87,
+                duration: "2س 38د",
+                director: "كليبر ميندونسا فيلهو",
+                cast: ["واغنر مورا", "ماريا فرناندا كانديدو"],
+                synopsis: "إثارة وغموض في البرازيل خلال سبعينيات القرن العشرين تتبع رجلاً يعود إلى مدينته ليجد نفسه وسط شبكة مراقبة ومخاطر.",
+                gradient: "from-emerald-900 via-slate-950 to-black",
+                svgType: "scale",
+                featured: false
+            },
+            {
+                id: 58,
+                titleAr: "أشياء جيدة فقط",
+                titleEn: "Only Good Things",
+                year: 2025,
+                category: "البرازيل",
+                genre: "دراما",
+                rating: 7.6,
+                popularity: 78,
+                duration: "1س 49د",
+                director: "أندريه نوفيس أوليفيرا",
+                cast: ["إدواردو موسكوفيس", "إينيز فيانا"],
+                synopsis: "تأمل درامي هادئ في العلاقات الأسرية والذكريات المشتركة داخل منزل يجمع بين الحنين والتساؤل حول المستقبل.",
+                gradient: "from-teal-800 via-slate-900 to-black",
+                svgType: "smile",
+                featured: false
+            },
+            {
+                id: 59,
+                titleAr: "نمر",
+                titleEn: "Tiger",
+                year: 2025,
+                category: "اليابان",
+                genre: "دراما",
+                rating: 7.8,
+                popularity: 81,
+                duration: "1س 47د",
+                director: "أنشول تشوهان",
+                cast: ["طاقم التمثيل الياباني"],
+                synopsis: "ينتقل السرد بين طوكيو ومسقط الرأس لمتابعة رحلة شاب يبحث عن التصالح مع جذوره وعائلته بلغة سينمائية شاعرية.",
+                gradient: "from-amber-800 via-stone-900 to-black",
+                svgType: "flame",
+                featured: false
+            },
+            {
+                id: 60,
+                titleAr: "أب أم أخت أخ",
+                titleEn: "Father Mother Sister Brother",
+                year: 2025,
+                category: "الولايات المتحدة",
+                genre: "دراما",
+                rating: 7.9,
+                popularity: 86,
+                duration: "1س 50د",
+                director: "جيم جارموش",
+                cast: ["كيت بلانشيت", "آدم درايفر", "توم وايتس", "مايم بياليك"],
+                synopsis: "ثلاثية قصصية يخرجها جيم جارموش تستكشف العلاقات المعقدة والمسافات العاطفية بين الآباء والأبناء البالغين في قارات مختلفة.",
+                gradient: "from-slate-800 via-zinc-900 to-black",
+                svgType: "key",
+                featured: false
+            },
+            {
+                id: 61,
+                titleAr: "كان مجرد حادث",
+                titleEn: "It Was Just an Accident",
+                year: 2025,
+                category: "فرنسا",
+                genre: "غموض",
+                rating: 8.3,
+                popularity: 87,
+                duration: "1س 42د",
+                director: "جعفر بناهي",
+                cast: ["وحيد مبشري", "مريم أفشاري"],
+                synopsis: "حادث عابر يفتح باب المواجهة الأخلاقية والذاكرة المؤلمة حول العدالة والانتقام في عمل درامي مشحون بالتوتر.",
+                gradient: "from-zinc-800 via-neutral-950 to-black",
+                svgType: "scale",
+                featured: false
+            },
+            {
+                id: 62,
+                titleAr: "الجميع إلى شارع كينمور",
+                titleEn: "Everybody to Kenmure Street",
+                year: 2026,
+                category: "وثائقي دولي",
+                genre: "دراما",
+                rating: 8.1,
+                popularity: 80,
+                duration: "1س 32د",
+                director: "فيليبي بوستوس سييرا",
+                cast: ["سكان حي كينمور ستريت"],
+                synopsis: "توثيق مؤثر لوقفة تضامن مجتمعية عفوية في غلاسكو دفاعاً عن جارين، يبرز قوة العمل الجماعي والتكاتف المدني.",
+                gradient: "from-blue-900 via-slate-900 to-black",
+                svgType: "shield",
+                featured: false
+            },
+            {
+                id: 63,
+                titleAr: "بول مكارتني: رجل على الطريق",
+                titleEn: "Paul McCartney: Man on the Run",
+                year: 2025,
+                category: "وثائقي دولي",
+                genre: "دراما",
+                rating: 8.2,
+                popularity: 83,
+                duration: "1س 55د",
+                director: "مورغان نيفيل",
+                cast: ["بول مكارتني", "ليندا مكارتني"],
+                synopsis: "وثائقي موسيقي يستعرض مرحلة إعادة الاكتشاف الفني لبول مكارتني بعد تفكك البيتلز وتأسيس فرقة وينغز.",
+                gradient: "from-amber-700 via-slate-900 to-black",
+                svgType: "star",
+                featured: false
+            },
+            {
+                id: 64,
+                titleAr: "هدر",
+                titleEn: "Wasteman",
+                year: 2025,
+                category: "بريطانيا",
+                genre: "دراما",
+                rating: 7.9,
+                popularity: 81,
+                duration: "1س 35د",
+                director: "كال ماكليود",
+                cast: ["ديفيد جونسون", "توم بليث"],
+                synopsis: "دراما قاسية ومكثفة داخل مؤسسة إصلاحية حول الصداقة والبقاء والبحث عن مخرج وسط ضغوط العنف اليومي.",
+                gradient: "from-slate-800 via-stone-950 to-black",
+                svgType: "shield",
+                featured: false
+            },
+            {
+                id: 65,
+                titleAr: "بيليون",
+                titleEn: "Pillion",
+                year: 2025,
+                category: "بريطانيا",
+                genre: "دراما",
+                rating: 7.8,
+                popularity: 79,
+                duration: "1س 47د",
+                director: "هاري لايتون",
+                cast: ["ألكسندر سكارسغارد", "هاري ميلينغ"],
+                synopsis: "دراما رومانسية غير تقليدية تتناول علاقة تنشأ بين شاب خجول وقائد دراجات نارية وسط تحولات الثقة والهوية.",
+                gradient: "from-zinc-800 via-slate-900 to-black",
+                svgType: "bolt",
+                featured: false
+            },
+            {
+                id: 66,
+                titleAr: "أندريه أحمق",
+                titleEn: "André Is an Idiot",
+                year: 2025,
+                category: "وثائقي دولي",
+                genre: "كوميديا",
+                rating: 7.9,
+                popularity: 77,
+                duration: "1س 31د",
+                director: "توني بينا",
+                cast: ["أندريه روبنشتاين"],
+                synopsis: "عمل وثائقي يمزج بين الفكاهة الساخرة والصدق الإنساني في مواجهة مرض خطير بطريقة غير مألوفة.",
+                gradient: "from-amber-700 via-rose-950 to-slate-950",
+                svgType: "smile",
+                featured: false
+            },
+            {
+                id: 67,
+                titleAr: "ريدوكس ريدوكس",
+                titleEn: "Redux Redux",
+                year: 2025,
+                category: "الولايات المتحدة",
+                genre: "خيال علمي",
+                rating: 7.7,
+                popularity: 80,
+                duration: "1س 46د",
+                director: "كيفن وماثيو ماكمانوس",
+                cast: ["ميكايلا ماكمانوس", "جيريمي هولم"],
+                synopsis: "إثارة نفسية وخيال علمي حول رحلة عبر الأكوان المتوازية مدفوعة بالحزن والبحث عن العدالة.",
+                gradient: "from-purple-900 via-slate-950 to-black",
+                svgType: "atom",
+                featured: false
+            },
+            {
+                id: 68,
+                titleAr: "ملاذ",
+                titleEn: "Shelter",
+                year: 2026,
+                category: "بريطانيا",
+                genre: "أكشن",
+                rating: 7.1,
+                popularity: 86,
+                duration: "1س 47د",
+                director: "ريك رومان ووه",
+                cast: ["جايسون ستاثام", "بيل ناي", "ناعومي آكي"],
+                synopsis: "في جزيرة إسكتلندية معزولة، يجد رجل يعيش بعيداً عن الأنظار نفسه مضطراً لحماية فتاة صغيرة من مطاردين خطيرين.",
+                gradient: "from-slate-700 via-cyan-950 to-black",
+                svgType: "shield",
+                featured: false
+            },
+            {
+                id: 69,
+                titleAr: "أشباح: مسكونة باتون هاوس",
+                titleEn: "Ghosts: The Possession of Button House",
+                year: 2026,
+                category: "بريطانيا",
+                genre: "كوميديا",
+                rating: 7.0,
+                popularity: 82,
+                duration: "1س 36د",
+                director: "توم كينغسلي",
+                cast: ["شارلوت ريتشي", "كييل سميث باينو", "ماثيو باينتون"],
+                synopsis: "تعود كوميديا الأشباح البريطانية في مغامرة مرحة داخل منزل عريق تسكنه أرواح من عصور تاريخية متباينة.",
+                gradient: "from-purple-800 via-amber-950 to-slate-950",
+                svgType: "ghost",
+                featured: false
+            },
+            {
+                id: 70,
+                titleAr: "ضغط",
+                titleEn: "Pressure",
+                year: 2026,
+                category: "بريطانيا",
+                genre: "دراما",
+                rating: 7.2,
+                popularity: 81,
+                duration: "1س 51د",
+                director: "أنتوني ماراس",
+                cast: ["بريندان غليسون", "أندرو سكوت"],
+                synopsis: "دراما مشحونة بالتوتر تسلط الضوء على اتخاذ قرارات مصيرية تحت ضغط الوقت والظروف الجوية والسياسية الحرجة.",
+                gradient: "from-slate-800 via-blue-950 to-black",
+                svgType: "scale",
+                featured: false
+            },
+            {
+                id: 71,
+                titleAr: "العقل والحس",
+                titleEn: "Sense and Sensibility",
+                year: 2026,
+                category: "بريطانيا",
+                genre: "دراما",
+                rating: 7.3,
+                popularity: 83,
+                duration: "1س 58د",
+                director: "جورجيا أوكلي",
+                cast: ["ديزي إدغار جونز", "إيميلدا ستونتون"],
+                synopsis: "معالجة سينمائية جديدة لرواية جين أوستن الكلاسيكية حول شقيقتين تواجهان تحديات الحب والسمعة الاجتماعية.",
+                gradient: "from-emerald-900 via-stone-900 to-black",
+                svgType: "star",
+                featured: false
+            },
+            {
+                id: 72,
+                titleAr: "كيف تصنع ثروة",
+                titleEn: "How to Make a Killing",
+                year: 2026,
+                category: "بريطانيا",
+                genre: "كوميديا",
+                rating: 7.1,
+                popularity: 79,
+                duration: "1س 45د",
+                director: "جون باتون فورد",
+                cast: ["غلين باول", "مارغريت كوالي", "إد هاريس"],
+                synopsis: "كوميديا سوداء ساخرة تتابع شاباً يسعى للوصول إلى ثروة عائلية ضخمة عبر سلسلة من الخطط المحفوفة بالمفارقات.",
+                gradient: "from-amber-800 via-zinc-900 to-black",
+                svgType: "smile",
+                featured: false
+            }
+        ];
+
+
+        // أحدث الإضافات (تواريخ العرض قد تختلف من بلد لآخر)
+        MOVIES_CATALOG.push(...[
+ {
+  "id": 101,
+  "titleAr": "مايكل",
+  "titleEn": "Michael",
+  "year": 2026,
+  "releaseDate": "2026-04-24",
+  "category": "الولايات المتحدة",
+  "genre": "دراما",
+  "rating": null,
+  "popularity": 96,
+  "duration": "—",
+  "director": "أنطوان فوكوا",
+  "cast": [
+   "جعفر جاكسون",
+   "كولمان دومينغو"
+  ],
+  "synopsis": "سيرة سينمائية لمسيرة المغني مايكل جاكسون.",
+  "gradient": "from-amber-800 via-stone-900 to-black",
+  "svgType": "star",
+  "featured": false
+ },
+ {
+  "id": 102,
+  "titleAr": "فيلم سوبر ماريو جالاكسي",
+  "titleEn": "The Super Mario Galaxy Movie",
+  "year": 2026,
+  "releaseDate": "2026-04-01",
+  "category": "الولايات المتحدة",
+  "genre": "أنيميشن",
+  "rating": null,
+  "popularity": 95,
+  "duration": "—",
+  "director": "آرون هورفاث ومايكل جيلينيك",
+  "cast": [
+   "كريس برات",
+   "أنيا تايلور جوي",
+   "جاك بلاك"
+  ],
+  "synopsis": "مغامرة جديدة لماريو ورفاقه تمتد إلى الفضاء.",
+  "gradient": "from-blue-700 via-sky-950 to-slate-950",
+  "svgType": "planet",
+  "featured": false
+ },
+ {
+  "id": 103,
+  "titleAr": "الشيطان يرتدي برادا 2",
+  "titleEn": "The Devil Wears Prada 2",
+  "year": 2026,
+  "releaseDate": "2026-05-01",
+  "category": "الولايات المتحدة",
+  "genre": "كوميديا",
+  "rating": null,
+  "popularity": 92,
+  "duration": "—",
+  "director": "ديفيد فرانكل",
+  "cast": [
+   "ميريل ستريب",
+   "آن هاثاواي",
+   "إيميلي بلنت"
+  ],
+  "synopsis": "عودة إلى عالم مجلات الأزياء مع ميراندا بريسلي وآندي.",
+  "gradient": "from-amber-600 via-rose-950 to-slate-950",
+  "svgType": "star",
+  "featured": false
+ },
+ {
+  "id": 104,
+  "titleAr": "مورتال كومبات 2",
+  "titleEn": "Mortal Kombat II",
+  "year": 2026,
+  "releaseDate": "2026-05-08",
+  "category": "الولايات المتحدة",
+  "genre": "أكشن",
+  "rating": null,
+  "popularity": 84,
+  "duration": "—",
+  "director": "سايمون مكويد",
+  "cast": [
+   "كارل أوربان",
+   "أديلين رودولف"
+  ],
+  "synopsis": "يخوض أبطال الأرض جولة جديدة من البطولة القتالية.",
+  "gradient": "from-red-800 via-rose-950 to-slate-950",
+  "svgType": "flame",
+  "featured": false
+ },
+ {
+  "id": 105,
+  "titleAr": "الغرف الخلفية",
+  "titleEn": "Backrooms",
+  "year": 2026,
+  "releaseDate": "2026-05-29",
+  "category": "الولايات المتحدة",
+  "genre": "رعب",
+  "rating": null,
+  "popularity": 90,
+  "duration": "—",
+  "director": "كين بارسونز",
+  "cast": [
+   "تشيويتيل إيجيوفور",
+   "رينات رينسفي"
+  ],
+  "synopsis": "رعب نفسي داخل متاهة غامضة من الغرف التي لا تنتهي.",
+  "gradient": "from-purple-900 via-slate-950 to-black",
+  "svgType": "ghost",
+  "featured": false
+ },
+ {
+  "id": 106,
+  "titleAr": "ريزدنت إيفل",
+  "titleEn": "Resident Evil",
+  "year": 2026,
+  "releaseDate": "2026-09-18",
+  "category": "الولايات المتحدة",
+  "genre": "رعب",
+  "rating": null,
+  "popularity": 94,
+  "duration": "—",
+  "director": "زاك كريغر",
+  "cast": [
+   "أوستن أبرامز"
+  ],
+  "synopsis": "قصة جديدة في عالم سلسلة الألعاب وسط تفشٍّ مرعب.",
+  "gradient": "from-purple-900 via-slate-950 to-black",
+  "svgType": "ghost",
+  "featured": false
+ },
+ {
+  "id": 107,
+  "titleAr": "فيريتي",
+  "titleEn": "Verity",
+  "year": 2026,
+  "releaseDate": "2026-10-02",
+  "category": "الولايات المتحدة",
+  "genre": "غموض",
+  "rating": null,
+  "popularity": 91,
+  "duration": "—",
+  "director": "مايكل شووالتر",
+  "cast": [
+   "آن هاثاواي",
+   "داكوتا جونسون",
+   "جوش هارتنت"
+  ],
+  "synopsis": "كاتبة تكتشف مخطوطة تحمل أسراراً مقلقة عن عائلة روائية شهيرة.",
+  "gradient": "from-slate-700 via-zinc-900 to-black",
+  "svgType": "key",
+  "featured": false
+ },
+ {
+  "id": 108,
+  "titleAr": "ديغر",
+  "titleEn": "Digger",
+  "year": 2026,
+  "releaseDate": "2026-10-02",
+  "category": "الولايات المتحدة",
+  "genre": "كوميديا",
+  "rating": null,
+  "popularity": 88,
+  "duration": "—",
+  "director": "أليخاندرو غونزاليس إيناريتو",
+  "cast": [
+   "توم كروز",
+   "جيسي بليمونس",
+   "ريز أحمد"
+  ],
+  "synopsis": "كوميديا سوداء يؤدي بطولتها توم كروز.",
+  "gradient": "from-amber-600 via-rose-950 to-slate-950",
+  "svgType": "scale",
+  "featured": false
+ },
+ {
+  "id": 109,
+  "titleAr": "ستريت فايتر",
+  "titleEn": "Street Fighter",
+  "year": 2026,
+  "releaseDate": "2026-10-16",
+  "category": "الولايات المتحدة",
+  "genre": "أكشن",
+  "rating": null,
+  "popularity": 86,
+  "duration": "—",
+  "director": "كيتاو ساكوراي",
+  "cast": [
+   "أندرو كوجي",
+   "نوا سنتينيو"
+  ],
+  "synopsis": "اقتباس سينمائي جديد للعبة القتال الشهيرة.",
+  "gradient": "from-red-800 via-rose-950 to-slate-950",
+  "svgType": "bolt",
+  "featured": false
+ },
+ {
+  "id": 110,
+  "titleAr": "كلايفيس",
+  "titleEn": "Clayface",
+  "year": 2026,
+  "releaseDate": "2026-10-23",
+  "category": "الولايات المتحدة",
+  "genre": "رعب",
+  "rating": null,
+  "popularity": 89,
+  "duration": "—",
+  "director": "جيمس واتكينز",
+  "cast": [
+   "توم ريس هاريز",
+   "ناومي آكي"
+  ],
+  "synopsis": "ممثل يتحول جسده إلى طين في حكاية رعب من عالم DC.",
+  "gradient": "from-purple-900 via-slate-950 to-black",
+  "svgType": "ghost",
+  "featured": false
+ },
+ {
+  "id": 111,
+  "titleAr": "غودزيلا ماينس زيرو",
+  "titleEn": "Godzilla Minus Zero",
+  "year": 2026,
+  "releaseDate": "2026-11-03",
+  "category": "اليابان",
+  "genre": "خيال علمي",
+  "rating": null,
+  "popularity": 93,
+  "duration": "—",
+  "director": "تاكاشي يامازاكي",
+  "cast": [
+   "ريونوسكي كاميكي",
+   "مينامي هامابي"
+  ],
+  "synopsis": "في اليابان عام 1949 تحاول عائلة شيكيشيما إعادة بناء حياتها قبل ظهور تهديد جديد.",
+  "gradient": "from-sky-800 via-indigo-950 to-slate-950",
+  "svgType": "flame",
+  "featured": false
+ },
+ {
+  "id": 112,
+  "titleAr": "رامايانا: الجزء الأول",
+  "titleEn": "Ramayana: Part 1",
+  "year": 2026,
+  "releaseDate": "2026-11-06",
+  "category": "الهند",
+  "genre": "مغامرة",
+  "rating": null,
+  "popularity": 90,
+  "duration": "—",
+  "director": "نيتيش تيواري",
+  "cast": [
+   "رانبير كابور",
+   "ياش",
+   "ساي بالافي",
+   "ساني ديول"
+  ],
+  "synopsis": "إعادة سرد للملحمة الهندية القديمة تتبع راما وسيتا في رحلة المنفى.",
+  "gradient": "from-emerald-700 via-teal-950 to-slate-950",
+  "svgType": "shield",
+  "featured": false
+ },
+ {
+  "id": 113,
+  "titleAr": "القط ذو القبعة",
+  "titleEn": "The Cat in the Hat",
+  "year": 2026,
+  "releaseDate": "2026-11-06",
+  "category": "الولايات المتحدة",
+  "genre": "أنيميشن",
+  "rating": null,
+  "popularity": 85,
+  "duration": "—",
+  "director": "أليساندرو كارلوني وإيريكا ريفينوجا",
+  "cast": [
+   "بيل هادر",
+   "كوينتا برونسون"
+  ],
+  "synopsis": "يحاول القط الشهير إسعاد طفلين يتأقلمان مع بلدة جديدة.",
+  "gradient": "from-blue-700 via-sky-950 to-slate-950",
+  "svgType": "smile",
+  "featured": false
+ },
+ {
+  "id": 114,
+  "titleAr": "حدوتة",
+  "titleEn": "Hadouta",
+  "year": 2026,
+  "releaseDate": "2026-11-11",
+  "category": "مصر",
+  "genre": "كوميديا",
+  "rating": null,
+  "popularity": 87,
+  "duration": "—",
+  "director": "مازن أشرف",
+  "cast": [
+   "أحمد حلمي",
+   "أمينة خليل",
+   "ماجد المصري"
+  ],
+  "synopsis": "رجل يتورط في خطف شاهد أثناء تمثيله دور بلطجي، ثم ينسى أين خبأه.",
+  "gradient": "from-amber-600 via-rose-950 to-slate-950",
+  "svgType": "smile",
+  "featured": false
+ },
+ {
+  "id": 115,
+  "titleAr": "كيف تسرق بنكاً",
+  "titleEn": "How to Rob a Bank",
+  "year": 2026,
+  "releaseDate": "2026-11-13",
+  "category": "الولايات المتحدة",
+  "genre": "أكشن",
+  "rating": null,
+  "popularity": 83,
+  "duration": "—",
+  "director": "ديفيد ليتش",
+  "cast": [
+   "نيكولاس هولت",
+   "زوي كرافيتز",
+   "آنا ساواي"
+  ],
+  "synopsis": "عصابة تنشر عمليات سطوها على الإنترنت فتشتهر وتلفت أنظار الشرطة.",
+  "gradient": "from-red-800 via-rose-950 to-slate-950",
+  "svgType": "key",
+  "featured": false
+ },
+ {
+  "id": 116,
+  "titleAr": "إبنيزر",
+  "titleEn": "Ebenezer",
+  "year": 2026,
+  "releaseDate": "2026-11-13",
+  "category": "الولايات المتحدة",
+  "genre": "رعب",
+  "rating": null,
+  "popularity": 85,
+  "duration": "—",
+  "director": "تي ويست",
+  "cast": [
+   "جوني ديب",
+   "ديزي ريدلي",
+   "إيان ماكشين"
+  ],
+  "synopsis": "معالجة مرعبة لحكاية إبنيزر سكروج في لندن الفيكتورية.",
+  "gradient": "from-purple-900 via-slate-950 to-black",
+  "svgType": "ghost",
+  "featured": false
+ },
+ {
+  "id": 117,
+  "titleAr": "جحيم العابرين",
+  "titleEn": "Jaheem Al-Aabreen",
+  "year": 2026,
+  "releaseDate": "2026-11-19",
+  "category": "السعودية",
+  "genre": "رعب",
+  "rating": null,
+  "popularity": 80,
+  "duration": "—",
+  "director": "هناء العمير",
+  "cast": [
+   "أضوى بدر",
+   "باسل الصلي"
+  ],
+  "synopsis": "امرأة تقلّ شاباً عالقاً على طريق جبلي مهجور ليلاً فتتحول الرحلة إلى كابوس.",
+  "gradient": "from-purple-900 via-slate-950 to-black",
+  "svgType": "ghost",
+  "featured": false
+ },
+ {
+  "id": 118,
+  "titleAr": "كريبتو",
+  "titleEn": "Crypto",
+  "year": 2026,
+  "releaseDate": "2026-11-19",
+  "category": "مصر",
+  "genre": "كوميديا",
+  "rating": null,
+  "popularity": 78,
+  "duration": "—",
+  "director": "سلطان مجدلي",
+  "cast": [
+   "حمدي الميرغني",
+   "محمد أسامة",
+   "بيومي فؤاد"
+  ],
+  "synopsis": "مصريان ينتحلان صفة ابني زعيم مافيا إيطالي راحل طمعاً في الميراث.",
+  "gradient": "from-amber-600 via-rose-950 to-slate-950",
+  "svgType": "smile",
+  "featured": false
+ },
+ {
+  "id": 119,
+  "titleAr": "ألعاب الجوع: شروق يوم الحصاد",
+  "titleEn": "The Hunger Games: Sunrise on the Reaping",
+  "year": 2026,
+  "releaseDate": "2026-11-20",
+  "category": "الولايات المتحدة",
+  "genre": "خيال علمي",
+  "rating": null,
+  "popularity": 97,
+  "duration": "—",
+  "director": "فرانسيس لورانس",
+  "cast": [
+   "جوزيف زادا",
+   "إيل فانينغ",
+   "رالف فاينز"
+  ],
+  "synopsis": "قبل 24 عاماً من السلسلة الأصلية، نتابع هايميتش الشاب صباح قرعة الألعاب الخمسين.",
+  "gradient": "from-sky-800 via-indigo-950 to-slate-950",
+  "svgType": "flame",
+  "featured": false
+ },
+ {
+  "id": 120,
+  "titleAr": "المسحورة",
+  "titleEn": "Hexed",
+  "year": 2026,
+  "releaseDate": "2026-11-25",
+  "category": "الولايات المتحدة",
+  "genre": "أنيميشن",
+  "rating": null,
+  "popularity": 89,
+  "duration": "—",
+  "director": "جيسون هاند وفاون فيراسونثورن",
+  "cast": [
+   "هايلي ستاينفيلد",
+   "رشيدة جونز"
+  ],
+  "synopsis": "مراهقة مختلفة تكتشف صلتها بسحر خفي فتدخل مع أمها عالماً مليئاً بالأسرار.",
+  "gradient": "from-blue-700 via-sky-950 to-slate-950",
+  "svgType": "star",
+  "featured": false
+ },
+ {
+  "id": 121,
+  "titleAr": "فوكر الصهر",
+  "titleEn": "Focker In-Law",
+  "year": 2026,
+  "releaseDate": "2026-11-25",
+  "category": "الولايات المتحدة",
+  "genre": "كوميديا",
+  "rating": null,
+  "popularity": 86,
+  "duration": "—",
+  "director": "جون هامبورغ",
+  "cast": [
+   "روبرت دي نيرو",
+   "بن ستيلر",
+   "أريانا غراندي"
+  ],
+  "synopsis": "جزء جديد من سلسلة Meet the Parents تشعله خطط زواج تثير توتر العائلة.",
+  "gradient": "from-amber-600 via-rose-950 to-slate-950",
+  "svgType": "smile",
+  "featured": false
+ },
+ {
+  "id": 122,
+  "titleAr": "ليلة باظت خالص",
+  "titleEn": "Leila Bazet Khales",
+  "year": 2026,
+  "releaseDate": "2026-11-25",
+  "category": "مصر",
+  "genre": "كوميديا",
+  "rating": null,
+  "popularity": 79,
+  "duration": "—",
+  "director": "محمد الحسيني وخالد منصور",
+  "cast": [
+   "أحمد مالك",
+   "تارا عماد",
+   "خالد الصاوي"
+  ],
+  "synopsis": "ليلة زفاف تحمل مفاجآت ومغامرات في شوارع القاهرة لإنقاذ الحفل.",
+  "gradient": "from-amber-600 via-rose-950 to-slate-950",
+  "svgType": "smile",
+  "featured": false
+ },
+ {
+  "id": 123,
+  "titleAr": "بحر",
+  "titleEn": "Bahr",
+  "year": 2026,
+  "releaseDate": "2026-12-02",
+  "category": "مصر",
+  "genre": "دراما",
+  "rating": null,
+  "popularity": 77,
+  "duration": "—",
+  "director": "أحمد علاء الديب",
+  "cast": [
+   "عصام عمر",
+   "جيهان الشماشرجي",
+   "آية سماحة"
+  ],
+  "synopsis": "شاب في بورسعيد يعاني البطالة ويقع في حب فتاة تعمل في السيرك.",
+  "gradient": "from-amber-800 via-stone-900 to-black",
+  "svgType": "wave",
+  "featured": false
+ },
+ {
+  "id": 124,
+  "titleAr": "ليلة عنيفة 2",
+  "titleEn": "Violent Night 2",
+  "year": 2026,
+  "releaseDate": "2026-12-04",
+  "category": "الولايات المتحدة",
+  "genre": "أكشن",
+  "rating": null,
+  "popularity": 82,
+  "duration": "—",
+  "director": "تومي ويركولا",
+  "cast": [
+   "ديفيد هاربور",
+   "كريستين بيل"
+  ],
+  "synopsis": "يعود بابا نويل المقاتل في مغامرة أكشن كوميدية.",
+  "gradient": "from-red-800 via-rose-950 to-slate-950",
+  "svgType": "bolt",
+  "featured": false
+ },
+ {
+  "id": 125,
+  "titleAr": "بنات فاتن",
+  "titleEn": "Banat Faten",
+  "year": 2026,
+  "releaseDate": "2026-12-09",
+  "category": "مصر",
+  "genre": "دراما",
+  "rating": null,
+  "popularity": 81,
+  "duration": "—",
+  "director": "محمد نادر",
+  "cast": [
+   "يسرا",
+   "هدى المفتي",
+   "باسم سمرة"
+  ],
+  "synopsis": "قصة حب تواجه عناد الأهل وتتكشف خلالها أسرار داخل منزل فاتن.",
+  "gradient": "from-amber-800 via-stone-900 to-black",
+  "svgType": "key",
+  "featured": false
+ },
+ {
+  "id": 126,
+  "titleAr": "جومانجي 3",
+  "titleEn": "Jumanji 3",
+  "year": 2026,
+  "releaseDate": "2026-12-11",
+  "category": "الولايات المتحدة",
+  "genre": "مغامرة",
+  "rating": null,
+  "popularity": 91,
+  "duration": "—",
+  "director": "جيك كاسدان",
+  "cast": [
+   "دواين جونسون",
+   "جاك بلاك",
+   "كارين غيلان"
+  ],
+  "synopsis": "فصل جديد من مغامرات لعبة جومانجي.",
+  "gradient": "from-emerald-700 via-teal-950 to-slate-950",
+  "svgType": "compass",
+  "featured": false
+ },
+ {
+  "id": 127,
+  "titleAr": "كثيب: الجزء الثالث",
+  "titleEn": "Dune: Part Three",
+  "year": 2026,
+  "releaseDate": "2026-12-18",
+  "category": "الولايات المتحدة",
+  "genre": "خيال علمي",
+  "rating": null,
+  "popularity": 99,
+  "duration": "—",
+  "director": "دينيس فيلنوف",
+  "cast": [
+   "تيموثي شالاميه",
+   "زيندايا",
+   "فلورنس بيو"
+  ],
+  "synopsis": "يواجه بول أتريدس تبعات السلطة التي وصل إليها.",
+  "gradient": "from-sky-800 via-indigo-950 to-slate-950",
+  "svgType": "planet",
+  "featured": false
+ },
+ {
+  "id": 128,
+  "titleAr": "المنتقمون: يوم القيامة",
+  "titleEn": "Avengers: Doomsday",
+  "year": 2026,
+  "releaseDate": "2026-12-18",
+  "category": "الولايات المتحدة",
+  "genre": "أكشن",
+  "rating": null,
+  "popularity": 100,
+  "duration": "—",
+  "director": "أنتوني وجو روسو",
+  "cast": [
+   "روبرت داوني جونيور",
+   "كريس هيمسوورث",
+   "بيدرو باسكال"
+  ],
+  "synopsis": "يتحد أبطال مارفل في مواجهة دكتور دووم.",
+  "gradient": "from-red-800 via-rose-950 to-slate-950",
+  "svgType": "shield",
+  "featured": false
+ },
+ {
+  "id": 129,
+  "titleAr": "ممسوس",
+  "titleEn": "Mamsous",
+  "year": 2026,
+  "releaseDate": "2026-12-30",
+  "category": "مصر",
+  "genre": "رعب",
+  "rating": null,
+  "popularity": 76,
+  "duration": "—",
+  "director": "ياسر الياسري",
+  "cast": [
+   "ياسمينا العبد",
+   "عمر رزيق"
+  ],
+  "synopsis": "بث مباشر من أماكن ترتبط بأساطير الجن يتحول إلى تجربة مرعبة.",
+  "gradient": "from-purple-900 via-slate-950 to-black",
+  "svgType": "ghost",
+  "featured": false
+ }
+]);
+        // تواريخ لأفلام موجودة سابقاً
+        const KNOWN_DATES = {2:"2026-03-20",3:"2026-07-17",4:"2026-07-31",6:"2026-06-19",71:"2026-12-11"};
+        MOVIES_CATALOG.forEach(m => { if (KNOWN_DATES[m.id]) m.releaseDate = KNOWN_DATES[m.id]; });
+
+        // حالة العرض تُحسب تلقائياً من تاريخ الجهاز
+        function todayISO() { const d = new Date(); return new Date(d - d.getTimezoneOffset()*60000).toISOString().slice(0,10); }
+        function isUpcoming(m) { return !!m.releaseDate && m.releaseDate > todayISO(); }
+        function dateKey(m) { return m.releaseDate || `${m.year}-00-00`; }
+        function ratingText(m) { return isUpcoming(m) ? "قريباً" : (m.rating ?? "—"); }
+
+        // خيارات الفلاتر الموسعة لتشمل البلدان والفئات والسنوات (2024 - 2026)
+        const CATEGORIES = [
+            "الكل",
+            "الولايات المتحدة",
+            "بريطانيا",
+            "فرنسا",
+            "ألمانيا",
+            "إيطاليا",
+            "إسبانيا",
+            "كوريا الجنوبية",
+            "اليابان",
+            "الهند",
+            "مصر",
+            "السعودية",
+            "السودان",
+            "العراق",
+            "أستراليا",
+            "البرازيل",
+            "وثائقي دولي"
+        ];
+        const GENRES = ["الكل", "أكشن", "دراما", "خيال علمي", "كوميديا", "رعب", "غموض", "مغامرة", "أنيميشن"];
+        const YEARS = [
+            { label: "الكل (2024–2026)", value: "all" },
+            { label: "2026", value: "2026" },
+            { label: "2025", value: "2025" },
+            { label: "2024", value: "2024" }
+        ];
+
+        // خيارات جودة التحميل داخل التطبيق (محاكاة تجريبية داخل توفاكسس)
+        const DOWNLOAD_QUALITIES = [
+            { id: "4k", label: "4K Ultra HD", sizeText: "3.8 GB", sizeGB: 3.8, badge: "محاكاة 4K" },
+            { id: "1080p", label: "1080p Full HD", sizeText: "1.9 GB", sizeGB: 1.9, badge: "موصى به" },
+            { id: "720p", label: "720p HD", sizeText: "950 MB", sizeGB: 0.95, badge: "خفيف" }
+        ];
+
+        // -------------------------------------------------------------------------
+        // حالة التطبيق (App State)
+        // -------------------------------------------------------------------------
+        let appState = {
+            activeTab: "home", // 'home' | 'favorites' | 'downloads'
+            category: "الكل",
+            genre: "الكل",
+            year: "all",
+            status: "all",
+            search: "",
+            favorites: JSON.parse(localStorage.getItem("2fakss_favorites") || "[]"),
+            completedDownloads: JSON.parse(localStorage.getItem("2fakss_completed_downloads") || "[]"),
+            activeDownloads: [],
+            selectedQualityId: "1080p"
+        };
+
+        let downloadEngineTimer = null;
+        let playerTimer = null;
+        let isPlayerPlaying = true;
+        let isPlayerMuted = false;
+        let subtitleMode = 0; // 0: العربية, 1: English, 2: إيقاف
+
+        const SAMPLE_SUBTITLES = {
+            ar: [
+                "\"معاينة تجريبية داخل مشغل توفاكسس (2FAKSS) — لا يتم بث ملفات كاملة محمية بحقوق النشر.\"",
+                "\"يمكنك اختبار شريط الزمن والصوت والترجمة أو تجربة مدير التحميلات المحلي.\"",
+                "\"لربط أفلام مرخصة أو بث فعلي، يُرجى إضافة روابط وسائط معتمدة من جهتك.\""
+            ],
+            en: [
+                "\"Demo preview inside 2FAKSS player — no full copyrighted movie streams are served.\"",
+                "\"You can test timeline scrubbing, audio controls, subtitles, or the local download manager.\"",
+                "\"Connect licensed media URLs when deploying a production catalog.\""
+            ]
+        };
+
+        // -------------------------------------------------------------------------
+        // أيقونات SVG مخصصة لبوسترات الأفلام (تضمن عدم وجود أي صور مكسورة)
+        // -------------------------------------------------------------------------
+        function getMovieSvgArtwork(type, sizeClass = "w-14 h-14") {
+            const svgs = {
+                planet: `<svg class="${sizeClass} text-white drop-shadow-lg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="6"/><path d="M3.5 16.5C2 14.5 5 10.5 10.5 7.5S20.5 4 22 6s-1.5 6-7 9-10 3.5-11.5 1.5z"/></svg>`,
+                compass: `<svg class="${sizeClass} text-white drop-shadow-lg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76" fill="currentColor" fill-opacity="0.25"/></svg>`,
+                plane: `<svg class="${sizeClass} text-white drop-shadow-lg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M17.8 19.2 16 11l3.5-3.5C21 6 21.5 4 21 3c-1-.5-3 0-4.5 1.5L13 8 4.8 6.2c-.5-.1-.9.1-1.1.5l-.3.5c-.2.5-.1 1 .3 1.3L9 12l-2 3H4l-1 1 3 2 2 3 1-1v-3l3-2 3.5 5.3c.3.4.8.5 1.3.3l.5-.2c.4-.3.6-.7.5-1.2z"/></svg>`,
+                atom: `<svg class="${sizeClass} text-white drop-shadow-lg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="2" fill="currentColor"/><ellipse cx="12" cy="12" rx="10" ry="4" transform="rotate(45 12 12)"/><ellipse cx="12" cy="12" rx="10" ry="4" transform="rotate(-45 12 12)"/></svg>`,
+                key: `<svg class="${sizeClass} text-white drop-shadow-lg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="7.5" cy="15.5" r="4.5"/><path d="m21 2-9.6 9.6"/><path d="m15.5 7.5 3 3L22 7l-3-3"/></svg>`,
+                flame: `<svg class="${sizeClass} text-white drop-shadow-lg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z" fill="currentColor" fill-opacity="0.2"/></svg>`,
+                robot: `<svg class="${sizeClass} text-white drop-shadow-lg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="4" y="8" width="16" height="12" rx="3"/><path d="M12 2v6"/><circle cx="12" cy="2" r="1.5"/><circle cx="9" cy="13" r="1.5" fill="currentColor"/><circle cx="15" cy="13" r="1.5" fill="currentColor"/><path d="M9 17h6"/></svg>`,
+                bolt: `<svg class="${sizeClass} text-white drop-shadow-lg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" fill="currentColor" fill-opacity="0.25"/></svg>`,
+                scale: `<svg class="${sizeClass} text-white drop-shadow-lg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="m16 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z"/><path d="m2 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z"/><path d="M7 21h10"/><path d="M12 3v18"/><path d="M3 7h2c2 0 5-1 7-2 2 1 5 2 7 2h2"/></svg>`,
+                ghost: `<svg class="${sizeClass} text-white drop-shadow-lg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M9 10h.01M15 10h.01M12 2a8 8 0 0 0-8 8v12l3-3 2.5 2.5L12 19l2.5 2.5L17 19l3 3V10a8 8 0 0 0-8-8z" fill="currentColor" fill-opacity="0.15"/></svg>`,
+                wave: `<svg class="${sizeClass} text-white drop-shadow-lg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M2 6c.6.5 1.2 1 2.5 1C7 7 7 5 9.5 5c2.6 0 2.4 2 5 2 2.5 0 2.5-2 5-2 1.3 0 1.9.5 2.5 1"/><path d="M2 12c.6.5 1.2 1 2.5 1 2.5 0 2.5-2 5-2 2.6 0 2.4 2 5 2 2.5 0 2.5-2 5-2 1.3 0 1.9.5 2.5 1"/><path d="M2 18c.6.5 1.2 1 2.5 1 2.5 0 2.5-2 5-2 2.6 0 2.4 2 5 2 2.5 0 2.5-2 5-2 1.3 0 1.9.5 2.5 1"/></svg>`,
+                star: `<svg class="${sizeClass} text-white drop-shadow-lg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" fill="currentColor" fill-opacity="0.25"/></svg>`,
+                smile: `<svg class="${sizeClass} text-white drop-shadow-lg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg>`,
+                dragon: `<svg class="${sizeClass} text-white drop-shadow-lg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 3c-4.5 0-8 3.5-8 8 0 3.2 1.8 6 4.5 7.3L7 21h10l-1.5-2.7C18.2 17 20 14.2 20 11c0-4.5-3.5-8-8-8Z"/><circle cx="9.5" cy="10.5" r="1" fill="currentColor"/><circle cx="14.5" cy="10.5" r="1" fill="currentColor"/></svg>`,
+                shield: `<svg class="${sizeClass} text-white drop-shadow-lg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" fill="currentColor" fill-opacity="0.2"/></svg>`
+            };
+            return svgs[type] || svgs.star;
+        }
+
+        // -------------------------------------------------------------------------
+        // تهيئة التطبيق عند التحميل
+        // -------------------------------------------------------------------------
+        document.addEventListener("DOMContentLoaded", () => {
+            renderHeroBanner();
+            renderFilterBars();
+            updateBadges();
+            renderCatalog();
+            startDownloadSimulationEngine();
+
+            // البحث الفوري
+            const searchInput = document.getElementById("searchInput");
+            searchInput.addEventListener("input", (e) => {
+                appState.search = e.target.value.trim();
+                document.getElementById("clearSearchBtn").classList.toggle("hidden", !appState.search);
+                if (appState.activeTab === "downloads") {
+                    switchTab("home");
+                }
+                renderCatalog();
+            });
+        });
+
+        // -------------------------------------------------------------------------
+        // التنقل بين التبويبات (الرئيسية / المفضلة / التحميلات)
+        // -------------------------------------------------------------------------
+        function switchTab(tabName) {
+            appState.activeTab = tabName;
+
+            // تحديث مظهر الأزرار
+            document.querySelectorAll(".nav-tab").forEach(btn => {
+                btn.classList.remove("bg-amber-500", "text-slate-950", "shadow-md");
+                btn.classList.add("text-slate-300", "hover:text-white", "hover:bg-slate-800");
+            });
+            const activeBtn = document.getElementById(`tab-${tabName}`);
+            if (activeBtn) {
+                activeBtn.classList.remove("text-slate-300", "hover:text-white", "hover:bg-slate-800");
+                activeBtn.classList.add("bg-amber-500", "text-slate-950", "shadow-md");
+            }
+
+            const catalogView = document.getElementById("mainCatalogView");
+            const downloadsView = document.getElementById("downloadsTabView");
+            const heroBanner = document.getElementById("heroBanner");
+            const welcomeRibbon = document.getElementById("welcomeRibbon");
+
+            if (tabName === "downloads") {
+                catalogView.classList.add("hidden");
+                downloadsView.classList.remove("hidden");
+                renderDownloadsManager();
+            } else {
+                downloadsView.classList.add("hidden");
+                catalogView.classList.remove("hidden");
+                // إظهار البانر وشريط الترحيب في الرئيسية فقط
+                heroBanner.classList.toggle("hidden", tabName === "favorites");
+                welcomeRibbon.classList.toggle("hidden", tabName === "favorites");
+                renderCatalog();
+            }
+        }
+
+        // -------------------------------------------------------------------------
+        // بناء البانر الرئيسي (Hero Banner)
+        // -------------------------------------------------------------------------
+        function renderHeroBanner() {
+            const featuredMovie = MOVIES_CATALOG.find(m => m.id === 119) || MOVIES_CATALOG[0];
+            const hero = document.getElementById("heroBanner");
+
+            hero.innerHTML = `
+                <div class="relative bg-gradient-to-br ${featuredMovie.gradient} p-6 sm:p-10 lg:p-12">
+                    <div class="absolute inset-0 bg-gradient-to-l from-[#080b12]/95 via-[#080b12]/70 to-transparent"></div>
+                    <div class="absolute -left-20 -bottom-20 w-80 h-80 bg-amber-500/20 rounded-full blur-3xl pointer-events-none"></div>
+
+                    <div class="relative z-10 flex flex-col lg:flex-row lg:items-center justify-between gap-8">
+                        <div class="max-w-2xl space-y-4">
+                            <div class="flex flex-wrap items-center gap-2">
+                                <span class="px-3 py-1 rounded-full bg-amber-500 text-slate-950 font-black text-xs flex items-center gap-1.5 shadow-lg shadow-amber-500/25">
+                                    <i class="fa-solid fa-crown"></i> اختيار توفاكسس الأبرز
+                                </span>
+                                <span class="px-3 py-1 rounded-full bg-white/10 backdrop-blur-md text-white font-bold text-xs border border-white/15">
+                                    ${featuredMovie.category}
+                                </span>
+                                <span class="px-3 py-1 rounded-full bg-rose-600/90 text-white font-bold text-xs">
+                                    ${featuredMovie.genre}
+                                </span>
+                                <span class="px-3 py-1 rounded-full bg-black/50 text-amber-400 font-extrabold text-xs border border-amber-500/30">
+                                    <i class="fa-solid fa-star ml-1"></i>${ratingText(featuredMovie)}
+                                </span>
+                                <span class="px-2.5 py-1 rounded-full bg-black/50 text-slate-300 font-bold text-xs">
+                                    ${featuredMovie.year}
+                                </span>
+                            </div>
+
+                            <div>
+                                <h2 class="text-3xl sm:text-4xl lg:text-5xl font-black text-white leading-tight">
+                                    ${featuredMovie.titleAr}
+                                </h2>
+                                <p class="text-sm sm:text-base text-amber-300/90 font-sans font-semibold mt-1">
+                                    ${featuredMovie.titleEn} • المدة: ${featuredMovie.duration}
+                                </p>
+                            </div>
+
+                            <p class="text-slate-200 text-sm sm:text-base font-tajawal leading-relaxed">
+                                ${featuredMovie.synopsis}
+                            </p>
+
+                            <div class="flex flex-wrap items-center gap-3 pt-2">
+                                <button onclick="openCinemaPlayer(${featuredMovie.id}, 'stream')" class="px-6 py-3.5 rounded-2xl bg-gradient-to-l from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 font-black text-sm sm:text-base transition-all flex items-center gap-2.5 shadow-xl shadow-amber-500/25 active:scale-95">
+                                    <i class="fa-solid fa-play text-base"></i>
+                                    <span>مشاهدة على توفاكسس</span>
+                                </button>
+
+                                <button onclick="openMovieModal(${featuredMovie.id})" class="px-6 py-3.5 rounded-2xl bg-white/10 hover:bg-white/20 backdrop-blur-md text-white font-extrabold text-sm sm:text-base border border-white/20 transition-all flex items-center gap-2.5 active:scale-95">
+                                    <i class="fa-solid fa-cloud-arrow-down text-amber-400 text-base"></i>
+                                    <span>تحميل مباشر</span>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- بطاقة بوستر فنية جانبية -->
+                        <div onclick="openMovieModal(${featuredMovie.id})" class="hidden lg:flex flex-col items-center justify-center w-64 h-72 rounded-3xl bg-white/5 backdrop-blur-md border border-white/15 p-6 cursor-pointer hover:scale-105 transition-transform shadow-2xl shrink-0">
+                            <span class="text-[10px] font-sans font-black tracking-widest text-amber-300/80 mb-3">2FAKSS EXCLUSIVE</span>
+                            <div class="w-24 h-24 rounded-3xl bg-gradient-to-br from-amber-500/30 to-rose-500/30 border border-white/20 flex items-center justify-center mb-4">
+                                ${getMovieSvgArtwork(featuredMovie.svgType, "w-14 h-14")}
+                            </div>
+                            <span class="text-xs text-amber-400 font-bold mb-1">متوفر للتحميل بجودة 4K</span>
+                            <span class="text-white font-extrabold text-center text-sm">${featuredMovie.titleAr}</span>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        // -------------------------------------------------------------------------
+        // بناء أشرطة التصفية (الفئة، النوع، السنة)
+        // -------------------------------------------------------------------------
+        function renderFilterBars() {
+            // الفئة
+            document.getElementById("categoryFilterBar").innerHTML = CATEGORIES.map(cat => {
+                const active = appState.category === cat;
+                return `
+                    <button onclick="setFilter('category', '${cat}')" 
+                        class="px-4 py-1.5 rounded-xl text-xs sm:text-sm font-bold whitespace-nowrap transition-all border ${
+                            active 
+                            ? "bg-amber-500 text-slate-950 border-amber-400 shadow-md shadow-amber-500/20" 
+                            : "bg-slate-900 text-slate-300 border-slate-800 hover:border-slate-600 hover:text-white"
+                        }">
+                        ${cat}
+                    </button>
+                `;
+            }).join("");
+
+            // النوع
+            document.getElementById("genreFilterBar").innerHTML = GENRES.map(gen => {
+                const active = appState.genre === gen;
+                return `
+                    <button onclick="setFilter('genre', '${gen}')" 
+                        class="px-3.5 py-1.5 rounded-xl text-xs sm:text-sm font-bold whitespace-nowrap transition-all border ${
+                            active 
+                            ? "bg-rose-600 text-white border-rose-500 shadow-md shadow-rose-600/20" 
+                            : "bg-slate-900 text-slate-300 border-slate-800 hover:border-slate-600 hover:text-white"
+                        }">
+                        ${gen}
+                    </button>
+                `;
+            }).join("");
+
+            // السنة
+            document.getElementById("yearFilterBar").innerHTML = YEARS.map(yr => {
+                const active = appState.year === yr.value;
+                return `
+                    <button onclick="setFilter('year', '${yr.value}')" 
+                        class="px-3.5 py-1.5 rounded-xl text-xs sm:text-sm font-bold whitespace-nowrap transition-all border ${
+                            active 
+                            ? "bg-emerald-500 text-slate-950 border-emerald-400 shadow-md shadow-emerald-500/20" 
+                            : "bg-slate-900 text-slate-300 border-slate-800 hover:border-slate-600 hover:text-white"
+                        }">
+                        ${yr.label}
+                    </button>
+                `;
+            }).join("");
+        }
+
+        function setFilter(key, value) {
+            appState[key] = value;
+            renderFilterBars();
+            renderCatalog();
+        }
+
+        function clearSearch() {
+            document.getElementById("searchInput").value = "";
+            appState.search = "";
+            document.getElementById("clearSearchBtn").classList.add("hidden");
+            renderCatalog();
+        }
+
+        function resetFilters() {
+            appState.category = "الكل";
+            appState.genre = "الكل";
+            appState.year = "all";
+            document.getElementById("sortSelect").value = "newest";
+            appState.status = "all";
+            document.getElementById("statusSelect").value = "all";
+            clearSearch();
+            renderFilterBars();
+            renderCatalog();
+        }
+
+        // -------------------------------------------------------------------------
+        // تصفية وعرض شبكة الأفلام
+        // -------------------------------------------------------------------------
+        function renderCatalog() {
+            const sortBy = document.getElementById("sortSelect").value;
+
+            let filtered = MOVIES_CATALOG.filter(movie => {
+                // إذا كنا في تبويب المفضلة
+                if (appState.activeTab === "favorites" && !appState.favorites.includes(movie.id)) {
+                    return false;
+                }
+
+                // الفئة
+                if (appState.category !== "الكل" && movie.category !== appState.category) {
+                    return false;
+                }
+
+                // النوع
+                if (appState.genre !== "الكل" && movie.genre !== appState.genre) {
+                    return false;
+                }
+
+                // السنة
+                if (appState.year !== "all") {
+                    if (["2026", "2025", "2024"].includes(appState.year) && movie.year !== parseInt(appState.year)) return false;
+                }
+
+                if (appState.status === "released" && isUpcoming(movie)) return false;
+                if (appState.status === "upcoming" && !isUpcoming(movie)) return false;
+
+                // البحث النصي
+                if (appState.search) {
+                    const q = appState.search.toLowerCase();
+                    const matchAr = movie.titleAr.toLowerCase().includes(q);
+                    const matchEn = movie.titleEn.toLowerCase().includes(q);
+                    const matchDirector = movie.director.toLowerCase().includes(q);
+                    const matchCast = movie.cast.some(c => c.toLowerCase().includes(q));
+                    if (!matchAr && !matchEn && !matchDirector && !matchCast) return false;
+                }
+
+                return true;
+            });
+
+            // الترتيب
+            if (sortBy === "rating") {
+                const r = m => isUpcoming(m) ? -1 : (m.rating ?? -1);
+                filtered.sort((a, b) => r(b) - r(a));
+            } else if (sortBy === "title") {
+                filtered.sort((a, b) => a.titleAr.localeCompare(b.titleAr, "ar"));
+            } else if (sortBy === "popular") {
+                filtered.sort((a, b) => b.popularity - a.popularity);
+            } else if (appState.status === "upcoming") {
+                filtered.sort((a, b) => dateKey(a).localeCompare(dateKey(b)));
+            } else {
+                // الأحدث: الصادرة أولاً ثم القادمة
+                filtered.sort((a, b) => (isUpcoming(a) - isUpcoming(b)) || (isUpcoming(a) ? dateKey(a).localeCompare(dateKey(b)) : dateKey(b).localeCompare(dateKey(a))));
+            }
+
+            // تحديث العنوان والعداد
+            const sectionTitle = document.getElementById("sectionTitle");
+            if (appState.activeTab === "favorites") {
+                sectionTitle.textContent = "مفضلتي في توفاكسس (2FAKSS)";
+            } else {
+                let parts = [];
+                if (appState.category !== "الكل") parts.push(appState.category);
+                if (appState.genre !== "الكل") parts.push(appState.genre);
+                if (appState.year !== "all") parts.push(appState.year);
+                sectionTitle.textContent = parts.length ? `أفلام ${parts.join(" • ")}` : "مكتبة توفاكسس (2024–2026)";
+            }
+            document.getElementById("activeResultCount").textContent = `${filtered.length} فيلم`;
+
+            const grid = document.getElementById("moviesGrid");
+            const emptyState = document.getElementById("emptyCatalogState");
+
+            if (filtered.length === 0) {
+                grid.innerHTML = "";
+                emptyState.classList.remove("hidden");
+                return;
+            }
+
+            emptyState.classList.add("hidden");
+            grid.innerHTML = filtered.map(movie => {
+                const isFav = appState.favorites.includes(movie.id);
+                const isCompleted = appState.completedDownloads.some(d => d.movieId === movie.id);
+                const activeDl = appState.activeDownloads.find(d => d.movieId === movie.id);
+
+                return `
+                    <article class="movie-card bg-[#101625] border border-slate-800/90 rounded-2xl overflow-hidden flex flex-col justify-between group">
+                        
+                        <!-- بوستر CSS فني مع أيقونة SVG مخصصة -->
+                        <div onclick="openMovieModal(${movie.id})" class="relative h-60 bg-gradient-to-br ${movie.gradient} p-4 flex flex-col justify-between cursor-pointer overflow-hidden">
+                            <div class="absolute inset-0 bg-gradient-to-t from-[#101625] via-transparent to-black/35"></div>
+                            
+                            <!-- خلفية زخرفية خفيفة -->
+                            <div class="absolute -left-6 -bottom-4 opacity-15 transform -rotate-12 group-hover:scale-110 transition-transform duration-500 pointer-events-none">
+                                ${getMovieSvgArtwork(movie.svgType, "w-36 h-36")}
+                            </div>
+
+                            <!-- أعلى البوستر: التقييم والمفضلة -->
+                            <div class="relative z-10 flex items-center justify-between">
+                                <span class="px-2.5 py-1 rounded-xl bg-black/65 backdrop-blur-md border border-amber-500/40 text-amber-400 text-xs font-black flex items-center gap-1">
+                                    <i class="fa-solid fa-star text-[11px]"></i> ${ratingText(movie)}
+                                </span>
+
+                                <button onclick="event.stopPropagation(); toggleFavorite(${movie.id})" 
+                                    class="w-9 h-9 rounded-xl bg-black/55 hover:bg-black/80 backdrop-blur-md border border-white/15 flex items-center justify-center transition-transform active:scale-90"
+                                    title="${isFav ? 'إزالة من المفضلة' : 'إضافة إلى المفضلة'}">
+                                    <i class="fa-${isFav ? 'solid text-rose-500' : 'regular text-white'} fa-heart text-sm"></i>
+                                </button>
+                            </div>
+
+                            <!-- أيقونة الفيلم المركزية -->
+                            <div class="relative z-10 my-auto flex flex-col items-center text-center">
+                                <div class="w-16 h-16 rounded-2xl bg-white/10 backdrop-blur-md border border-white/20 flex items-center justify-center mb-2 shadow-xl group-hover:scale-110 transition-transform">
+                                    ${getMovieSvgArtwork(movie.svgType, "w-9 h-9")}
+                                </div>
+                                <span class="text-[11px] font-sans font-bold uppercase tracking-wider text-white/80 line-clamp-1 px-2">${movie.titleEn}</span>
+                            </div>
+
+                            <!-- أسفل البوستر: شارة الفئة والسنة -->
+                            <div class="relative z-10 flex items-center justify-between gap-2">
+                                <span class="px-2.5 py-0.5 rounded-lg bg-amber-500 text-slate-950 font-black text-[11px]">
+                                    ${movie.category}
+                                </span>
+                                <span class="px-2.5 py-0.5 rounded-lg bg-black/65 backdrop-blur-md text-slate-200 font-bold text-xs border border-white/10">
+                                    ${movie.releaseDate || movie.year}
+                                </span>
+                            </div>
+                        </div>
+
+                        <!-- محتوى البطاقة -->
+                        <div class="p-4 flex-1 flex flex-col justify-between">
+                            <div>
+                                <div class="flex items-center justify-between text-xs text-slate-400 mb-1.5">
+                                    <span class="text-rose-400 font-bold">${movie.genre}</span>
+                                    <span><i class="fa-regular fa-clock ml-1"></i>${movie.duration}</span>
+                                </div>
+
+                                <h3 onclick="openMovieModal(${movie.id})" class="text-base sm:text-lg font-extrabold text-white group-hover:text-amber-400 transition-colors cursor-pointer line-clamp-1 mb-1.5">
+                                    ${movie.titleAr}
+                                </h3>
+
+                                <p class="text-xs text-slate-400 font-tajawal line-clamp-2 leading-relaxed mb-4">
+                                    ${movie.synopsis}
+                                </p>
+                            </div>
+
+                            <!-- أزرار التفاصيل والتحميل السريع -->
+                            <div class="pt-3 border-t border-slate-800/80 flex items-center gap-2">
+                                <button onclick="openMovieModal(${movie.id})" class="flex-1 py-2 px-3 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-bold transition-colors">
+                                    التفاصيل
+                                </button>
+
+                                ${isCompleted ? `
+                                    <button onclick="openCinemaPlayer(${movie.id}, 'offline')" class="flex-1 py-2 px-3 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 text-xs font-black transition-all flex items-center justify-center gap-1.5">
+                                        <i class="fa-solid fa-play"></i>
+                                        <span>أوفلاين</span>
+                                    </button>
+                                ` : activeDl ? `
+                                    <button onclick="switchTab('downloads')" class="flex-1 py-2 px-3 rounded-xl bg-amber-500/20 border border-amber-500/40 text-amber-400 text-xs font-extrabold flex items-center justify-center gap-1.5">
+                                        <i class="fa-solid fa-spinner fa-spin"></i>
+                                        <span>${activeDl.progress}%</span>
+                                    </button>
+                                ` : `
+                                    <button onclick="openMovieModal(${movie.id})" class="flex-1 py-2 px-3 rounded-xl bg-gradient-to-l from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 text-xs font-black transition-all flex items-center justify-center gap-1.5 shadow-md shadow-amber-500/15">
+                                        <i class="fa-solid fa-download"></i>
+                                        <span>تحميل</span>
+                                    </button>
+                                `}
+                            </div>
+                        </div>
+
+                    </article>
+                `;
+            }).join("");
+        }
+
+        // -------------------------------------------------------------------------
+        // نافذة تفاصيل الفيلم واختيار جودة التحميل (Movie Details Modal)
+        // -------------------------------------------------------------------------
+        function openMovieModal(movieId) {
+            const movie = MOVIES_CATALOG.find(m => m.id === movieId);
+            if (!movie) return;
+
+            appState.selectedQualityId = "1080p";
+            const isFav = appState.favorites.includes(movie.id);
+            const isCompleted = appState.completedDownloads.some(d => d.movieId === movie.id);
+            const isDownloading = appState.activeDownloads.some(d => d.movieId === movie.id);
+
+            const body = document.getElementById("movieModalBody");
+            body.innerHTML = `
+                <!-- رأس النافذة -->
+                <div class="relative bg-gradient-to-br ${movie.gradient} p-6 sm:p-8 border-b border-slate-800">
+                    <div class="absolute inset-0 bg-black/50"></div>
+                    <div class="relative z-10 flex flex-col sm:flex-row items-start sm:items-center gap-5">
+                        <div class="w-20 h-20 sm:w-24 sm:h-24 rounded-3xl bg-white/10 backdrop-blur-md border border-white/20 flex items-center justify-center shrink-0 shadow-2xl">
+                            ${getMovieSvgArtwork(movie.svgType, "w-12 h-12")}
+                        </div>
+                        <div class="flex-1">
+                            <div class="flex flex-wrap items-center gap-2 mb-2">
+                                <span class="px-2.5 py-0.5 rounded-lg bg-amber-500 text-slate-950 font-black text-xs">${movie.category}</span>
+                                <span class="px-2.5 py-0.5 rounded-lg bg-rose-600 text-white font-bold text-xs">${movie.genre}</span>
+                                <span class="px-2.5 py-0.5 rounded-lg bg-black/60 text-slate-200 font-bold text-xs">${movie.year}</span>
+                                <span class="px-2.5 py-0.5 rounded-lg bg-black/60 text-amber-400 font-extrabold text-xs">
+                                    <i class="fa-solid fa-star ml-1"></i>${ratingText(movie)}
+                                </span>
+                                <span class="px-2.5 py-0.5 rounded-lg bg-black/60 text-slate-300 font-bold text-xs">
+                                    <i class="fa-regular fa-clock ml-1"></i>${movie.duration}
+                                </span>
+                            </div>
+                            <h2 class="text-2xl sm:text-3xl font-black text-white">${movie.titleAr}</h2>
+                            <p class="text-sm text-slate-300 font-sans mt-0.5">${movie.titleEn}</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- تفاصيل الفيلم وخيارات التحميل -->
+                <div class="p-6 sm:p-8 space-y-6">
+                    
+                    <!-- القصة الكاملة -->
+                    <div>
+                        <h4 class="text-xs font-extrabold text-amber-400 uppercase tracking-wider mb-2">القصة الكاملة</h4>
+                        <p class="text-slate-200 text-sm sm:text-base font-tajawal leading-relaxed bg-slate-900/70 p-4 rounded-2xl border border-slate-800">
+                            ${movie.synopsis}
+                        </p>
+                    </div>
+
+                    <!-- المخرج وطاقم التمثيل -->
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div class="bg-slate-900/70 p-4 rounded-2xl border border-slate-800">
+                            <span class="text-xs text-slate-400 block mb-1">المخرج</span>
+                            <span class="text-sm font-extrabold text-white flex items-center gap-2">
+                                <i class="fa-solid fa-clapperboard text-amber-500"></i> ${movie.director}
+                            </span>
+                        </div>
+                        <div class="bg-slate-900/70 p-4 rounded-2xl border border-slate-800">
+                            <span class="text-xs text-slate-400 block mb-1.5">طاقم التمثيل</span>
+                            <div class="flex flex-wrap gap-1.5">
+                                ${movie.cast.map(actor => `<span class="text-xs bg-slate-800 text-slate-200 px-2.5 py-1 rounded-lg font-semibold">${actor}</span>`).join("")}
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- محدد جودة التحميل داخل توفاكسس -->
+                    <div class="bg-gradient-to-l from-slate-900 to-[#141c30] p-5 rounded-2xl border border-amber-500/35">
+                        <div class="flex flex-wrap items-center justify-between gap-2 mb-3">
+                            <h4 class="text-base font-extrabold text-white flex items-center gap-2">
+                                <i class="fa-solid fa-cloud-arrow-down text-amber-400"></i>
+                                <span>اختر جودة التحميل في توفاكسس (2FAKSS)</span>
+                            </h4>
+                            <span class="text-xs text-emerald-400 font-bold"><i class="fa-solid fa-closed-captioning ml-1"></i>شامل الترجمة العربية</span>
+                        </div>
+
+                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-5">
+                            ${DOWNLOAD_QUALITIES.map(q => {
+                                const selected = q.id === appState.selectedQualityId;
+                                return `
+                                    <div onclick="selectDownloadQuality('${q.id}')" id="qCard_${q.id}" 
+                                        class="cursor-pointer p-3.5 rounded-2xl border transition-all ${
+                                            selected 
+                                            ? "bg-amber-500/15 border-amber-500 shadow-lg shadow-amber-500/10" 
+                                            : "bg-slate-950/70 border-slate-800 hover:border-slate-600"
+                                        }">
+                                        <div class="flex items-center justify-between mb-1">
+                                            <span class="text-sm font-black text-white">${q.label}</span>
+                                            <span class="text-[10px] px-2 py-0.5 rounded-full ${selected ? 'bg-amber-500 text-slate-950 font-extrabold' : 'bg-slate-800 text-slate-400'}">${q.badge}</span>
+                                        </div>
+                                        <div class="text-xs font-extrabold text-amber-400">${q.sizeText}</div>
+                                    </div>
+                                `;
+                            }).join("")}
+                        </div>
+
+                        <!-- أزرار الإجراء الرئيسية -->
+                        <div class="flex flex-col sm:flex-row items-center gap-3">
+                            ${isCompleted ? `
+                                <button onclick="closeMovieModal(); openCinemaPlayer(${movie.id}, 'offline')" class="w-full sm:flex-1 py-3.5 px-5 rounded-2xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black text-sm transition-all flex items-center justify-center gap-2 shadow-lg shadow-emerald-500/20">
+                                    <i class="fa-solid fa-play"></i>
+                                    <span>محمّل في توفاكسس • تشغيل أوفلاين</span>
+                                </button>
+                            ` : isDownloading ? `
+                                <button onclick="closeMovieModal(); switchTab('downloads')" class="w-full sm:flex-1 py-3.5 px-5 rounded-2xl bg-amber-500/20 border border-amber-500 text-amber-400 font-black text-sm transition-all flex items-center justify-center gap-2">
+                                    <i class="fa-solid fa-spinner fa-spin"></i>
+                                    <span>جاري التحميل... عرض التقدم</span>
+                                </button>
+                            ` : `
+                                <button onclick="startInAppDownload(${movie.id})" class="w-full sm:flex-1 py-3.5 px-5 rounded-2xl bg-gradient-to-l from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 font-black text-sm transition-all flex items-center justify-center gap-2 shadow-lg shadow-amber-500/25 active:scale-98">
+                                    <i class="fa-solid fa-download"></i>
+                                    <span>بدء التحميل داخل توفاكسس</span>
+                                </button>
+                            `}
+
+                            <button onclick="closeMovieModal(); openCinemaPlayer(${movie.id}, 'stream')" class="w-full sm:w-auto py-3.5 px-5 rounded-2xl bg-slate-800 hover:bg-slate-700 text-white font-extrabold text-sm border border-slate-700 transition-colors flex items-center justify-center gap-2">
+                                <i class="fa-solid fa-film text-amber-400"></i>
+                                <span>مشاهدة العرض</span>
+                            </button>
+
+                            <button onclick="toggleFavorite(${movie.id}); openMovieModal(${movie.id})" class="w-full sm:w-auto py-3.5 px-4 rounded-2xl bg-slate-900 hover:bg-slate-800 text-white font-bold text-sm border border-slate-700 transition-colors flex items-center justify-center gap-2" title="المفضلة">
+                                <i class="fa-${isFav ? 'solid text-rose-500' : 'regular'} fa-heart text-base"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                </div>
+            `;
+
+            const modal = document.getElementById("movieModal");
+            modal.classList.remove("hidden");
+            modal.classList.add("flex");
+        }
+
+        function selectDownloadQuality(qualityId) {
+            appState.selectedQualityId = qualityId;
+            DOWNLOAD_QUALITIES.forEach(q => {
+                const card = document.getElementById(`qCard_${q.id}`);
+                if (!card) return;
+                const badge = card.querySelector("span:last-child");
+                if (q.id === qualityId) {
+                    card.className = "cursor-pointer p-3.5 rounded-2xl border transition-all bg-amber-500/15 border-amber-500 shadow-lg shadow-amber-500/10";
+                    badge.className = "text-[10px] px-2 py-0.5 rounded-full bg-amber-500 text-slate-950 font-extrabold";
+                } else {
+                    card.className = "cursor-pointer p-3.5 rounded-2xl border transition-all bg-slate-950/70 border-slate-800 hover:border-slate-600";
+                    badge.className = "text-[10px] px-2 py-0.5 rounded-full bg-slate-800 text-slate-400";
+                }
+            });
+        }
+
+        function closeMovieModal() {
+            const modal = document.getElementById("movieModal");
+            modal.classList.add("hidden");
+            modal.classList.remove("flex");
+        }
+
+        // -------------------------------------------------------------------------
+        // نظام المفضلة (Favorites)
+        // -------------------------------------------------------------------------
+        function toggleFavorite(movieId) {
+            const movie = MOVIES_CATALOG.find(m => m.id === movieId);
+            const idx = appState.favorites.indexOf(movieId);
+
+            if (idx === -1) {
+                appState.favorites.push(movieId);
+                showToast(`تمت إضافة "${movie.titleAr}" إلى مفضلة توفاكسس`);
+            } else {
+                appState.favorites.splice(idx, 1);
+                showToast(`تمت إزالة "${movie.titleAr}" من مفضلة توفاكسس`);
+            }
+
+            localStorage.setItem("2fakss_favorites", JSON.stringify(appState.favorites));
+            updateBadges();
+            renderCatalog();
+        }
+
+        // -------------------------------------------------------------------------
+        // مدير التحميلات المدمج (In-App Download Manager)
+        // -------------------------------------------------------------------------
+        function startInAppDownload(movieId) {
+            const movie = MOVIES_CATALOG.find(m => m.id === movieId);
+            const quality = DOWNLOAD_QUALITIES.find(q => q.id === appState.selectedQualityId) || DOWNLOAD_QUALITIES[1];
+
+            if (!movie) return;
+
+            if (appState.completedDownloads.some(d => d.movieId === movieId)) {
+                showToast(`فيلم "${movie.titleAr}" محمّل بالفعل في توفاكسس وجاهز للمشاهدة أوفلاين`);
+                closeMovieModal();
+                switchTab("downloads");
+                return;
+            }
+
+            if (appState.activeDownloads.some(d => d.movieId === movieId)) {
+                showToast(`جاري تحميل "${movie.titleAr}" بالفعل`);
+                closeMovieModal();
+                switchTab("downloads");
+                return;
+            }
+
+            appState.activeDownloads.unshift({
+                id: Date.now(),
+                movieId: movie.id,
+                titleAr: movie.titleAr,
+                titleEn: movie.titleEn,
+                gradient: movie.gradient,
+                svgType: movie.svgType,
+                qualityLabel: quality.label,
+                sizeText: quality.sizeText,
+                sizeGB: quality.sizeGB,
+                progress: 0,
+                speed: "14.2 MB/s",
+                paused: false
+            });
+
+            updateBadges();
+            renderCatalog();
+            closeMovieModal();
+            switchTab("downloads");
+            showToast(`بدأ تحميل "${movie.titleAr}" في توفاكسس بجودة ${quality.label}`);
+        }
+
+        function startDownloadSimulationEngine() {
+            if (downloadEngineTimer) clearInterval(downloadEngineTimer);
+            downloadEngineTimer = setInterval(() => {
+                if (appState.activeDownloads.length === 0) return;
+
+                let stateChanged = false;
+                const remainingActive = [];
+
+                appState.activeDownloads.forEach(dl => {
+                    if (!dl.paused) {
+                        const step = Math.floor(Math.random() * 8) + 6;
+                        dl.progress = Math.min(100, dl.progress + step);
+                        const randomSpeed = (Math.random() * 12 + 8.5).toFixed(1);
+                        dl.speed = `${randomSpeed} MB/s`;
+                        stateChanged = true;
+
+                        if (dl.progress >= 100) {
+                            appState.completedDownloads.unshift({
+                                movieId: dl.movieId,
+                                titleAr: dl.titleAr,
+                                titleEn: dl.titleEn,
+                                gradient: dl.gradient,
+                                svgType: dl.svgType,
+                                qualityLabel: dl.qualityLabel,
+                                sizeText: dl.sizeText,
+                                sizeGB: dl.sizeGB,
+                                downloadedAt: new Date().toLocaleDateString("ar-EG")
+                            });
+                            localStorage.setItem("2fakss_completed_downloads", JSON.stringify(appState.completedDownloads));
+                            showToast(`اكتمل تحميل "${dl.titleAr}"! متاح الآن للمشاهدة أوفلاين على توفاكسس`);
+                        } else {
+                            remainingActive.push(dl);
+                        }
+                    } else {
+                        remainingActive.push(dl);
+                    }
+                });
+
+                appState.activeDownloads = remainingActive;
+
+                if (stateChanged) {
+                    updateBadges();
+                    if (appState.activeTab === "downloads") {
+                        renderDownloadsManager();
+                    } else {
+                        renderCatalog();
+                    }
+                }
+            }, 750);
+        }
+
+        function togglePauseActiveDownload(downloadId) {
+            const dl = appState.activeDownloads.find(d => d.id === downloadId);
+            if (!dl) return;
+            dl.paused = !dl.paused;
+            renderDownloadsManager();
+        }
+
+        function cancelActiveDownload(downloadId) {
+            appState.activeDownloads = appState.activeDownloads.filter(d => d.id !== downloadId);
+            updateBadges();
+            renderDownloadsManager();
+            renderCatalog();
+            showToast("تم إلغاء التحميل");
+        }
+
+        function deleteCompletedDownload(movieId) {
+            appState.completedDownloads = appState.completedDownloads.filter(d => d.movieId !== movieId);
+            localStorage.setItem("2fakss_completed_downloads", JSON.stringify(appState.completedDownloads));
+            updateBadges();
+            renderDownloadsManager();
+            renderCatalog();
+            showToast("تم حذف الفيلم من تخزين توفاكسس");
+        }
+
+        function renderDownloadsManager() {
+            const activeContainer = document.getElementById("activeDownloadsContainer");
+            const completedContainer = document.getElementById("completedDownloadsContainer");
+
+            document.getElementById("activeDownloadsCounter").textContent = appState.activeDownloads.length;
+            document.getElementById("completedDownloadsCounter").textContent = appState.completedDownloads.length;
+
+            // حساب المساحة المستخدمة
+            const usedGB = appState.completedDownloads.reduce((acc, item) => acc + (item.sizeGB || 1.5), 0);
+            const totalGB = 64;
+            const percentUsed = Math.min(100, Math.max(2, Math.round((usedGB / totalGB) * 100)));
+
+            document.getElementById("storageStatsText").textContent = `${usedGB.toFixed(1)} GB / ${totalGB} GB`;
+            document.getElementById("storageProgressBar").style.width = `${percentUsed}%`;
+            document.getElementById("offlineMoviesCountText").textContent = `${appState.completedDownloads.length} أفلام محفوظة`;
+
+            // عرض التحميلات الجارية
+            if (appState.activeDownloads.length === 0) {
+                activeContainer.innerHTML = `
+                    <div class="bg-[#101625]/70 border border-slate-800/80 rounded-2xl p-6 text-center text-slate-400 text-sm font-tajawal">
+                        لا توجد تحميلات نشطة في الوقت الحالي. اختر أي فيلم من توفاكسس واضغط على "تحميل" للبدء.
+                    </div>
+                `;
+            } else {
+                activeContainer.innerHTML = appState.activeDownloads.map(dl => `
+                    <div class="bg-[#101625] border border-slate-800 rounded-2xl p-4 sm:p-5 shadow-lg">
+                        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-3">
+                            <div class="flex items-center gap-3.5">
+                                <div class="w-14 h-14 rounded-2xl bg-gradient-to-br ${dl.gradient} flex items-center justify-center shrink-0 border border-white/15">
+                                    ${getMovieSvgArtwork(dl.svgType, "w-8 h-8")}
+                                </div>
+                                <div>
+                                    <h4 class="text-base font-extrabold text-white">${dl.titleAr}</h4>
+                                    <div class="flex flex-wrap items-center gap-2 text-xs text-slate-400 mt-0.5">
+                                        <span class="text-amber-400 font-bold">${dl.qualityLabel}</span>
+                                        <span>•</span>
+                                        <span>${dl.sizeText}</span>
+                                        <span>•</span>
+                                        <span class="${dl.paused ? 'text-slate-400' : 'text-emerald-400 font-bold'}">
+                                            ${dl.paused ? 'متوقف مؤقتاً' : dl.speed}
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="flex items-center gap-2 self-end sm:self-center">
+                                <button onclick="togglePauseActiveDownload(${dl.id})" class="px-3.5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-white text-xs font-bold transition-colors flex items-center gap-1.5">
+                                    <i class="fa-solid fa-${dl.paused ? 'play text-emerald-400' : 'pause text-amber-400'}"></i>
+                                    <span>${dl.paused ? 'استئناف' : 'إيقاف مؤقت'}</span>
+                                </button>
+                                <button onclick="cancelActiveDownload(${dl.id})" class="px-3.5 py-2 rounded-xl bg-rose-600/15 hover:bg-rose-600 text-rose-400 hover:text-white border border-rose-500/30 text-xs font-bold transition-colors flex items-center gap-1.5">
+                                    <i class="fa-solid fa-xmark"></i>
+                                    <span>إلغاء</span>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- شريط التقدم -->
+                        <div class="flex items-center gap-3">
+                            <div class="flex-1 bg-slate-900 h-2.5 rounded-full overflow-hidden">
+                                <div class="h-full rounded-full transition-all duration-300 ${dl.paused ? 'bg-slate-500' : 'bg-amber-500 progress-striped'}" style="width: ${dl.progress}%"></div>
+                            </div>
+                            <span class="text-xs font-black text-amber-400 w-10 text-left">${dl.progress}%</span>
+                        </div>
+                    </div>
+                `).join("");
+            }
+
+            // عرض التحميلات المكتملة
+            if (appState.completedDownloads.length === 0) {
+                completedContainer.innerHTML = `
+                    <div class="col-span-full bg-[#101625]/70 border border-slate-800/80 rounded-2xl p-8 text-center">
+                        <i class="fa-solid fa-folder-open text-3xl text-slate-600 mb-2"></i>
+                        <p class="text-slate-400 text-sm font-tajawal">لم تقم بتحميل أي أفلام بعد. الأفلام المكتملة ستظهر هنا للمشاهدة أوفلاين عبر توفاكسس.</p>
+                    </div>
+                `;
+            } else {
+                completedContainer.innerHTML = appState.completedDownloads.map(item => `
+                    <div class="bg-[#101625] border border-emerald-500/25 rounded-2xl p-4 flex items-center justify-between gap-4 shadow-lg">
+                        <div class="flex items-center gap-3.5 min-w-0">
+                            <div class="w-16 h-16 rounded-2xl bg-gradient-to-br ${item.gradient} flex items-center justify-center shrink-0 border border-white/15">
+                                ${getMovieSvgArtwork(item.svgType, "w-9 h-9")}
+                            </div>
+                            <div class="min-w-0">
+                                <h4 class="text-base font-extrabold text-white truncate">${item.titleAr}</h4>
+                                <div class="flex items-center gap-2 text-xs text-slate-400 mt-0.5">
+                                    <span class="text-emerald-400 font-bold">${item.qualityLabel}</span>
+                                    <span>•</span>
+                                    <span>${item.sizeText}</span>
+                                </div>
+                                <span class="inline-block text-[10px] text-slate-500 mt-1">تم الحفظ في توفاكسس: ${item.downloadedAt}</span>
+                            </div>
+                        </div>
+
+                        <div class="flex flex-col sm:flex-row items-center gap-2 shrink-0">
+                            <button onclick="openCinemaPlayer(${item.movieId}, 'offline')" class="px-3.5 py-2 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 text-xs font-black transition-all flex items-center gap-1.5 shadow-md shadow-emerald-500/15">
+                                <i class="fa-solid fa-play"></i>
+                                <span>تشغيل أوفلاين</span>
+                            </button>
+                            <button onclick="deleteCompletedDownload(${item.movieId})" class="p-2 rounded-xl bg-slate-800 hover:bg-rose-600 text-slate-400 hover:text-white transition-colors" title="حذف">
+                                <i class="fa-solid fa-trash-can text-xs"></i>
+                            </button>
+                        </div>
+                    </div>
+                `).join("");
+            }
+        }
+
+        function updateBadges() {
+            document.getElementById("favBadge").textContent = appState.favorites.filter(id => MOVIES_CATALOG.some(m => m.id === id)).length;
+            const totalDownloads = appState.activeDownloads.length + appState.completedDownloads.length;
+            document.getElementById("downloadsBadge").textContent = totalDownloads;
+        }
+
+        // -------------------------------------------------------------------------
+        // مشغل الفيديو السينمائي المدمج (Custom HTML5-Style Cinematic Player)
+        // -------------------------------------------------------------------------
+        function openCinemaPlayer(movieId, mode = "stream") {
+            const movie = MOVIES_CATALOG.find(m => m.id === movieId);
+            if (!movie) return;
+
+            const savedItem = appState.completedDownloads.find(d => d.movieId === movieId);
+            const qualityText = savedItem ? savedItem.qualityLabel : "1080p Full HD";
+
+            document.getElementById("playerTitle").textContent = `${movie.titleAr} (${movie.titleEn})`;
+            document.getElementById("playerQualityBadge").textContent = qualityText;
+
+            const modeBadge = document.getElementById("playerModeBadge");
+            if (mode === "offline") {
+                modeBadge.className = "px-2.5 py-1 rounded-lg bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 text-xs font-extrabold shrink-0";
+                modeBadge.innerHTML = `<i class="fa-solid fa-circle-check ml-1"></i> تشغيل أوفلاين`;
+            } else {
+                modeBadge.className = "px-2.5 py-1 rounded-lg bg-amber-500/20 text-amber-400 border border-amber-500/30 text-xs font-extrabold shrink-0";
+                modeBadge.innerHTML = `<i class="fa-solid fa-tower-broadcast ml-1"></i> عرض سينمائي مباشر`;
+            }
+
+            document.getElementById("playerVisualBackdrop").className = `absolute inset-0 cinema-ambient bg-gradient-to-br ${movie.gradient}`;
+            document.getElementById("playerCenterArt").innerHTML = getMovieSvgArtwork(movie.svgType, "w-12 h-12");
+            document.getElementById("playerSceneText").textContent = movie.titleAr;
+            document.getElementById("playerSubSceneText").textContent = `مشغل توفاكسس (2FAKSS) • إخراج: ${movie.director} • ${movie.year}`;
+
+            isPlayerPlaying = true;
+            document.getElementById("playerPlayPauseIcon").className = "fa-solid fa-pause text-base";
+            const timeline = document.getElementById("playerTimeline");
+            timeline.value = 12;
+            updatePlayerClock(12);
+
+            if (playerTimer) clearInterval(playerTimer);
+            playerTimer = setInterval(() => {
+                if (isPlayerPlaying) {
+                    let val = parseFloat(timeline.value) + 0.4;
+                    if (val > 100) val = 0;
+                    timeline.value = val;
+                    updatePlayerClock(val);
+                    updateSubtitleSample(Math.floor(val));
+                }
+            }, 600);
+
+            const modal = document.getElementById("cinemaPlayerModal");
+            modal.classList.remove("hidden");
+            modal.classList.add("flex");
+        }
+
+        function togglePlayerPlay() {
+            isPlayerPlaying = !isPlayerPlaying;
+            document.getElementById("playerPlayPauseIcon").className = isPlayerPlaying ? "fa-solid fa-pause text-base" : "fa-solid fa-play text-base";
+        }
+
+        function scrubTimeline(val) {
+            updatePlayerClock(parseFloat(val));
+            updateSubtitleSample(Math.floor(val));
+        }
+
+        function skipPlayerTime(deltaPercent) {
+            const timeline = document.getElementById("playerTimeline");
+            let next = Math.max(0, Math.min(100, parseFloat(timeline.value) + deltaPercent));
+            timeline.value = next;
+            updatePlayerClock(next);
+        }
+
+        function updatePlayerClock(percent) {
+            const totalSeconds = 135 * 60; // 2:15:00
+            const currentSeconds = Math.floor((percent / 100) * totalSeconds);
+            const hrs = String(Math.floor(currentSeconds / 3600)).padStart(2, "0");
+            const mins = String(Math.floor((currentSeconds % 3600) / 60)).padStart(2, "0");
+            const secs = String(currentSeconds % 60).padStart(2, "0");
+            document.getElementById("playerCurrentTime").textContent = `${hrs}:${mins}:${secs}`;
+        }
+
+        function togglePlayerMute() {
+            isPlayerMuted = !isPlayerMuted;
+            const icon = document.getElementById("playerVolumeIcon");
+            icon.className = isPlayerMuted ? "fa-solid fa-volume-xmark text-rose-500" : "fa-solid fa-volume-high";
+        }
+
+        function changePlayerVolume(val) {
+            const icon = document.getElementById("playerVolumeIcon");
+            if (parseInt(val) === 0) {
+                icon.className = "fa-solid fa-volume-xmark text-rose-500";
+            } else {
+                isPlayerMuted = false;
+                icon.className = "fa-solid fa-volume-high";
+            }
+        }
+
+        function cycleSubtitleLang() {
+            subtitleMode = (subtitleMode + 1) % 3;
+            const label = document.getElementById("subtitleLangLabel");
+            const box = document.getElementById("playerSubtitleBox");
+
+            if (subtitleMode === 0) {
+                label.textContent = "الترجمة: العربية";
+                box.classList.remove("hidden");
+                updateSubtitleSample(1);
+            } else if (subtitleMode === 1) {
+                label.textContent = "الترجمة: English";
+                box.classList.remove("hidden");
+                updateSubtitleSample(1);
+            } else {
+                label.textContent = "الترجمة: إيقاف";
+                box.classList.add("hidden");
+            }
+        }
+
+        function updateSubtitleSample(tick) {
+            if (subtitleMode === 2) return;
+            const textEl = document.getElementById("playerSubtitleText");
+            const list = subtitleMode === 0 ? SAMPLE_SUBTITLES.ar : SAMPLE_SUBTITLES.en;
+            textEl.textContent = list[tick % list.length];
+        }
+
+        function closeCinemaPlayer() {
+            if (playerTimer) clearInterval(playerTimer);
+            const modal = document.getElementById("cinemaPlayerModal");
+            modal.classList.add("hidden");
+            modal.classList.remove("flex");
+        }
+
+        // -------------------------------------------------------------------------
+        // نظام الإشعارات (Toast)
+        // -------------------------------------------------------------------------
+        let toastTimer = null;
+        function showToast(message) {
+            const box = document.getElementById("toastBox");
+            document.getElementById("toastText").textContent = message;
+            box.classList.remove("translate-y-24", "opacity-0");
+            box.classList.add("translate-y-0", "opacity-100");
+
+            if (toastTimer) clearTimeout(toastTimer);
+            toastTimer = setTimeout(() => {
+                box.classList.add("translate-y-24", "opacity-0");
+                box.classList.remove("translate-y-0", "opacity-100");
+            }, 3000);
+        }
+    </script>
+    <button id="installBtn" class="hidden fixed bottom-5 left-5 z-40 px-5 py-3 rounded-2xl bg-amber-500 text-slate-950 font-black text-sm shadow-2xl">
+        <i class="fa-solid fa-mobile-screen-button ml-1"></i> تثبيت التطبيق
+    </button>
+    <script>
+        (() => {
+            const btn = document.getElementById("installBtn");
+            const standalone = matchMedia("(display-mode: standalone)").matches || navigator.standalone;
+            const ios = /iphone|ipad|ipod/i.test(navigator.userAgent);
+            let deferred = null;
+            if (!standalone && ios) btn.classList.remove("hidden");
+            addEventListener("beforeinstallprompt", e => { e.preventDefault(); deferred = e; btn.classList.remove("hidden"); });
+            btn.addEventListener("click", async () => {
+                if (deferred) { deferred.prompt(); await deferred.userChoice; deferred = null; btn.classList.add("hidden"); }
+                else showToast("في Safari: اضغط زر المشاركة ثم «إضافة إلى الشاشة الرئيسية»");
+            });
+            addEventListener("appinstalled", () => btn.classList.add("hidden"));
+            if ("serviceWorker" in navigator) addEventListener("load", () => navigator.serviceWorker.register("sw.js").catch(console.warn));
+        })();
+    </script>
+</body>
+</html>
