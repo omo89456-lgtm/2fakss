@@ -239,8 +239,13 @@
                 </div>
 
                 <div class="flex flex-wrap items-center gap-2.5 shrink-0">
+                    <select id="typeSelect" aria-label="النوع: فيلم أو مسلسل" onchange="setFilter('type', this.value)" class="bg-slate-900 border border-slate-700/80 rounded-xl px-3 py-2 text-xs sm:text-sm font-bold text-white">
+                        <option value="all">أفلام ومسلسلات</option>
+                        <option value="فيلم">أفلام</option>
+                        <option value="مسلسل">مسلسلات</option>
+                    </select>
                     <select id="statusSelect" aria-label="حالة العرض" onchange="setFilter('status', this.value)" class="bg-slate-900 border border-slate-700/80 rounded-xl px-3 py-2 text-xs sm:text-sm font-bold text-white">
-                        <option value="all">كل الأفلام</option>
+                        <option value="all">الكل</option>
                         <option value="released">صدرت</option>
                         <option value="upcoming">قريباً</option>
                     </select>
@@ -515,6 +520,7 @@
     <!-- ===================================================================== -->
     <!-- 8. منطق التطبيق الكامل (JavaScript)                                   -->
     <!-- ===================================================================== -->
+    <script src="my-list.js"></script>
     <script>
         // -------------------------------------------------------------------------
         // كتالوج أفلام حقيقية صادرة بين 2024 و2026 عبر البلدان والأنواع المختلفة (74 فيلماً)
@@ -2415,6 +2421,27 @@
             { label: "2024", value: "2024" }
         ];
 
+        // إضافات المستخدم من ملف my-list.js
+        (window.MY_LIST || []).forEach(item => {
+            if (!item || !item.title) return;
+            const type = item.type === "مسلسل" ? "مسلسل" : "فيلم";
+            const year = Number(item.year) || new Date().getFullYear();
+            // رقم ثابت لكل عمل حتى لا تتغير المفضلة عند تغيير الترتيب
+            const key = `${type}|${item.title}|${year}`;
+            const id = 100000 + [...key].reduce((h, c) => (h * 31 + c.charCodeAt(0)) % 1000000007, 7);
+            const genre = item.genre || "دراما", category = item.country || "أخرى";
+            if (!CATEGORIES.includes(category)) CATEGORIES.push(category);
+            if (!GENRES.includes(genre)) GENRES.push(genre);
+            MOVIES_CATALOG.push({
+                id, type, year, genre, category,
+                titleAr: item.title, titleEn: item.titleEn || "",
+                releaseDate: item.date, rating: item.rating ?? null, popularity: 90,
+                duration: type === "مسلسل" ? (item.seasons ? `المواسم: ${item.seasons}` : "مسلسل") : (item.duration || "—"),
+                director: item.director || "—", cast: item.cast || [], synopsis: item.story || "",
+                gradient: "from-sky-800 via-indigo-950 to-slate-950", svgType: "star", featured: false
+            });
+        });
+
         // خيارات جودة التحميل داخل التطبيق (محاكاة تجريبية داخل توفاكسس)
         const DOWNLOAD_QUALITIES = [
             { id: "4k", label: "4K Ultra HD", sizeText: "3.8 GB", sizeGB: 3.8, badge: "محاكاة 4K" },
@@ -2431,6 +2458,7 @@
             genre: "الكل",
             year: "all",
             status: "all",
+            type: "all",
             search: "",
             favorites: JSON.parse(localStorage.getItem("2fakss_favorites") || "[]"),
             completedDownloads: JSON.parse(localStorage.getItem("2fakss_completed_downloads") || "[]"),
@@ -2680,6 +2708,8 @@
             appState.year = "all";
             document.getElementById("sortSelect").value = "newest";
             appState.status = "all";
+            appState.type = "all";
+            document.getElementById("typeSelect").value = "all";
             document.getElementById("statusSelect").value = "all";
             clearSearch();
             renderFilterBars();
@@ -2715,6 +2745,8 @@
 
                 if (appState.status === "released" && isUpcoming(movie)) return false;
                 if (appState.status === "upcoming" && !isUpcoming(movie)) return false;
+
+                if (appState.type !== "all" && (movie.type || "فيلم") !== appState.type) return false;
 
                 // البحث النصي
                 if (appState.search) {
@@ -2755,7 +2787,7 @@
                 if (appState.year !== "all") parts.push(appState.year);
                 sectionTitle.textContent = parts.length ? `أفلام ${parts.join(" • ")}` : "مكتبة توفاكسس (2024–2026)";
             }
-            document.getElementById("activeResultCount").textContent = `${filtered.length} فيلم`;
+            document.getElementById("activeResultCount").textContent = `${filtered.length} عمل`;
 
             const grid = document.getElementById("moviesGrid");
             const emptyState = document.getElementById("emptyCatalogState");

@@ -1,5 +1,5 @@
-const CACHE = "2fakss-v2";
-const LOCAL = ["./", "index.html", "manifest.json", "icon-192.png", "icon-512.png"];
+const CACHE = "2fakss-v3";
+const LOCAL = ["./", "index.html", "manifest.json", "my-list.js", "icon-192.png", "icon-512.png"];
 const REMOTE = ["https://cdn.tailwindcss.com/", "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"];
 
 self.addEventListener("install", e => {
@@ -21,7 +21,10 @@ const save = (req, res) => {
 self.addEventListener("fetch", e => {
   const req = e.request;
   if (req.method !== "GET") return;
-  if (req.mode === "navigate") {
+  if (new URL(req.url).pathname.endsWith("/my-list.js")) {
+    // الشبكة أولاً حتى تظهر الإضافات الجديدة
+    e.respondWith(fetch(req, { cache: "no-cache" }).then(r => save(req, r)).catch(() => caches.match(req)));
+  } else if (req.mode === "navigate") {
     // الشبكة أولاً لتصل التحديثات، والنسخة المحفوظة عند انقطاع الإنترنت
     e.respondWith(fetch(req).then(r => save(req, r)).catch(async () => (await caches.match(req)) || caches.match("index.html")));
   } else {
